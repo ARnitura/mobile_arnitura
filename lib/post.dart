@@ -191,10 +191,10 @@ class _PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                         style: TextStyle(fontWeight: FontWeight.w500),
                       ),
                       margin: EdgeInsets.only(left: 10),
-                    ) // Название рпоизводителя
+                    ) // Название производителя
                   ],
                 ),
-              ),
+              ), // Плашка для перехода на экран производителя
               Container(
                 margin: EdgeInsets.only(top: 15),
                 child: Stack(
@@ -251,7 +251,7 @@ class _PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                     // Счетчик, из за того что нужно обновлять состояние(только счетчика а не всего поста) он не выделен в другой виджет, а сделан адаптивно
                   ],
                 ),
-              ),
+              ), // Карусель с фотографиями товаров
               Row(children: [
                 SizedBox(width: 10),
                 IconButton(onPressed: () async {
@@ -313,12 +313,12 @@ class _PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                           : indexUnityPageLayer = 0;
                       widget.setStatePosts(); // Переход между экранами
                       if (indexUnityPageLayer == 1) {
-                        print('13131313');
                         Future.delayed(const Duration(milliseconds: 3000), () {
                           unityWidgetController
                               .postMessage(
                               '_FlutterMessageHandler', 'StartAR', '');
                         }).then((value) => s0.downloadModel(idPostUnityModel));
+                        blindArWidget.setTexture();
                       } // Если переход был совершен на экран ar(Инициализация)
                     }, // Кнопка дополненной реальности0
                     icon: Image.asset(

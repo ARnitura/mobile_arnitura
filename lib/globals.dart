@@ -10,5 +10,7 @@ late UnityWidgetController unityWidgetController;
 var s0 = ArWidget(
     id_texture: idTextureUnityModel,
     id_post: idPostUnityModel);
+var blindArWidget = BlindWidget(id_texture: idTextureUnityModel,
+    id_post: idPostUnityModel);
 String dirloc = "";
 var maps = [];

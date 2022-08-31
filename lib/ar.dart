@@ -30,11 +30,12 @@ class ArWidget extends StatefulWidget {
     required this.id_post,
   }) : super(key: key);
 
-  final ArWidgetState myAppState=new ArWidgetState();
+  final ArWidgetState myAppState = new ArWidgetState();
+
   @override
   ArWidgetState createState() => ArWidgetState();
 
-  void getPath(){
+  void getPath() {
     myAppState.getPath();
   }
 
@@ -43,7 +44,7 @@ class ArWidget extends StatefulWidget {
   }
 
   void downloadTextureToModel() {
-    downloadTextureToModel();
+    myAppState.downloadTextureToModel();
   }
 }
 
@@ -59,7 +60,6 @@ class ArWidgetState extends State<ArWidget> {
   var model_path = "No Data";
 
   late UnityWidgetController _unityWidgetController;
-  late BlindWidget blind;
   late UnityWidget UnityScreen;
 
   Dio dio = Dio();
@@ -67,7 +67,6 @@ class ArWidgetState extends State<ArWidget> {
   @override
   Future<void> deactivate() async {
     super.deactivate();
-    print('cleararerr');
     unityWidgetController
         .postMessage('_FlutterMessageHandler', 'ClearAR', '')
         ?.then((value) => Navigator.pop(context));
@@ -79,11 +78,8 @@ class ArWidgetState extends State<ArWidget> {
     this.UnityScreen = UnityWidget(
         onUnityCreated: onUnityCreated,
         onUnityMessage: onUnityMessage,
-        enablePlaceholder: false, fullscreen: false);
-    this.blind = BlindWidget(
-        id_texture: idTextureUnityModel,
-        id_post: idPostUnityModel,
-        lockBlindPosition: LockBlindPosition);
+        enablePlaceholder: false,
+        fullscreen: false);
     initCartInfo();
     initPosition();
   }
@@ -110,22 +106,22 @@ class ArWidgetState extends State<ArWidget> {
     if (File(model_path).existsSync() != true) {
       // Если модели нет, то она скачивается
       // try {
-        final DownloadUrl =
-            "${url_server}/api/download_model?manufacturer_id=${manufacturer_id.toString()}&model_id=${model_id.toString()}";
-        FileUtils.mkdir([dirloc]); // Если папка отсутсвует, то создается новая
-        await dio.download(DownloadUrl, model_path,
-            onReceiveProgress: (receivedBytes, totalBytes) {
-          // // setState(() {
-            progress_download =
-                "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
-            print(progress_download);
-          });
-        // });
+      final DownloadUrl =
+          "${url_server}/api/download_model?manufacturer_id=${manufacturer_id.toString()}&model_id=${model_id.toString()}";
+      FileUtils.mkdir([dirloc]); // Если папка отсутсвует, то создается новая
+      await dio.download(DownloadUrl, model_path,
+          onReceiveProgress: (receivedBytes, totalBytes) {
+        // // setState(() {
+        progress_download =
+            "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
+        print(progress_download);
+      });
+      // });
       // } catch (e) {
       //   print(e);
       // }
       // setState(() {
-        progress_download = "Complete - 100%";
+      progress_download = "Complete - 100%";
       // });
     }
     downloadTextureToModel();
@@ -159,17 +155,17 @@ class ArWidgetState extends State<ArWidget> {
             FileUtils.mkdir([dirloc]); // Создание папки
             await dio.download(DownloadUrl, map_path.toString(),
                 onReceiveProgress: (receivedBytes, totalBytes) {
-                  var progress_download_map =
+              var progress_download_map =
                   "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
-                  print(progress_download_map);
+              print(progress_download_map);
             });
           } catch (e) {
             print(e);
           }
         }
-          downloaded_maps = (j + 1).toString();
+        downloaded_maps = (j + 1).toString();
       }
-        downloaded_texture = (i + 1).toString();
+      downloaded_texture = (i + 1).toString();
     }
     print('installed');
     addModel(model_path);
@@ -233,8 +229,7 @@ class ArWidgetState extends State<ArWidget> {
   void onUnityCreated(controller) {
     print('11221');
     unityWidgetController = controller;
-    unityWidgetController
-        .postMessage('_FlutterMessageHandler', 'StartAR', '');
+    unityWidgetController.postMessage('_FlutterMessageHandler', 'StartAR', '');
     this._unityWidgetController = controller;
     this._unityWidgetController.pause();
     this._unityWidgetController.resume();
@@ -253,12 +248,6 @@ class ArWidgetState extends State<ArWidget> {
   // todo: На данный момент никак не регулируется разделение потока данных
   // по этому если приходит любое сообщение из юнити сразу назначается текстура
 
-  void LockBlindPosition() async {
-    setState(() {
-      position = Offset(0, MediaQuery.of(context).size.height - 200);
-    });
-  }
-
   void addModel(path) {
     unityWidgetController.postMessage(
       '_FlutterMessageHandler',
@@ -269,8 +258,8 @@ class ArWidgetState extends State<ArWidget> {
   }
 
   Future<void> setTexture() async {
-    Future.delayed(Duration(seconds: 5)).then((value) => unityWidgetController.postMessage(
-        '_FlutterMessageHandler', 'LoadTexture', maps.join(", ")));
+    Future.delayed(Duration(seconds: 5)).then((value) => unityWidgetController
+        .postMessage('_FlutterMessageHandler', 'LoadTexture', maps.join(", ")));
   }
 
   // EXAMPLE: LoadTexture("baseColorPath, normalMapPath, heightMapPath, MetallicGlossMap, OcclusionMapPath, EmissionMapPath, GlossinessMapPath")
@@ -321,7 +310,7 @@ class ArWidgetState extends State<ArWidget> {
                 child: UnityScreen,
               ),
               Positioned(
-                top: position.dy,
+                top: position.dy - 300,
                 child: GestureDetector(
                   onHorizontalDragUpdate: (DragUpdateDetails details) {
                     setState(() {
@@ -331,7 +320,7 @@ class ArWidgetState extends State<ArWidget> {
                     });
                     // print(details.globalPosition);
                   },
-                  child: blind,
+                  child: blindArWidget,
                 ),
               ),
               Positioned(
@@ -400,22 +389,26 @@ class ArWidgetState extends State<ArWidget> {
 class BlindWidget extends StatefulWidget {
   final String id_texture;
   final String id_post;
-  final VoidCallback lockBlindPosition;
 
   BlindWidget(
       {Key? key,
       required this.id_texture,
-      required this.id_post,
-      required this.lockBlindPosition})
+      required this.id_post})
       : super(key: key);
+
+  final _BlindWidgetState blindState = new _BlindWidgetState();
 
   @override
   _BlindWidgetState createState() => _BlindWidgetState();
+
+  void setTexture() {
+    blindState.setTexture();
+  }
 }
 
 class _BlindWidgetState extends State<BlindWidget> {
   var countBlind = 0;
-  var textures;
+  var textures = idTextureUnityModel.split(', ');
 
   @override
   void initState() {
@@ -432,8 +425,10 @@ class _BlindWidgetState extends State<BlindWidget> {
     }
   }
 
-  void myFunction(){
-    print('hello dart');
+  void setTexture() {
+    setState(() {
+      textures = idTextureUnityModel.split(', ');
+    });
   }
 
   @override
