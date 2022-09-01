@@ -59,7 +59,13 @@ class ArWidgetState extends State<ArWidget> {
   var max_maps = '';
   var model_path = "No Data";
 
+  void LockBlindPosition() async {
+    setState(() {});
+  }
+
   late UnityWidgetController _unityWidgetController;
+  BlindWidget blind =
+      BlindWidget(id_texture: idTextureUnityModel, id_post: idPostUnityModel);
   late UnityWidget UnityScreen;
 
   Dio dio = Dio();
@@ -80,6 +86,8 @@ class ArWidgetState extends State<ArWidget> {
         onUnityMessage: onUnityMessage,
         enablePlaceholder: false,
         fullscreen: false);
+    this.blind =
+        BlindWidget(id_texture: idTextureUnityModel, id_post: idPostUnityModel);
     initCartInfo();
     initPosition();
   }
@@ -320,7 +328,7 @@ class ArWidgetState extends State<ArWidget> {
                     });
                     // print(details.globalPosition);
                   },
-                  child: blindArWidget,
+                  child: blind,
                 ),
               ),
               Positioned(
@@ -390,29 +398,24 @@ class BlindWidget extends StatefulWidget {
   final String id_texture;
   final String id_post;
 
-  BlindWidget(
-      {Key? key,
-      required this.id_texture,
-      required this.id_post})
-      : super(key: key);
-
-  final _BlindWidgetState blindState = new _BlindWidgetState();
+  BlindWidget({Key? key, required this.id_texture, required this.id_post})
+      : super(key: keyToBlind);
 
   @override
-  _BlindWidgetState createState() => _BlindWidgetState();
-
-  void setTexture() {
-    blindState.setTexture();
-  }
+  BlindWidgetState createState() => BlindWidgetState();
 }
 
-class _BlindWidgetState extends State<BlindWidget> {
+class BlindWidgetState extends State<BlindWidget> {
   var countBlind = 0;
   var textures = idTextureUnityModel.split(', ');
 
   @override
   void initState() {
     super.initState();
+    calculateBlindCount();
+  }
+
+  void calculateBlindCount() {
     if (idTextureUnityModel != 'None') {
       idTextureUnityModel = idTextureUnityModel.split(', ');
       if (0 < textures.length && textures.length < 3) {
@@ -428,26 +431,26 @@ class _BlindWidgetState extends State<BlindWidget> {
   void setTexture() {
     setState(() {
       textures = idTextureUnityModel.split(', ');
+      calculateBlindCount();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width - 40,
-      height: 300,
+      width: MediaQuery.of(context).size.width,
+      height: 200,
       child: ListView.builder(
         physics: NeverScrollableScrollPhysics(),
         itemCount: countBlind,
         itemBuilder: (BuildContext buildContext, int index) {
           return Row(children: [
-            // Container(color: Colors.black, width: 100, height: 100)
             index * 3 < textures.length
                 ? Expanded(
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
                         });
                       },
                       child: Image.network(
@@ -455,26 +458,29 @@ class _BlindWidgetState extends State<BlindWidget> {
                           fit: BoxFit.fitWidth),
                     ),
                   )
-                : Container(
-                    width: 100,
-                    height: 100,
+                : Expanded(
+                    child: Container(width: 10), flex: 1,
                   ),
-            Container(color: Colors.black, width: 10, height: double.infinity),
+            (index * 3) + 1 < textures.length ?
+            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1,),
             (index * 3) + 1 < textures.length
                 ? Expanded(
-                    child: Image.network(
-                        '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 1]).toString()}',
-                        fit: BoxFit.fitWidth))
-                : Container(width: 100, height: 100),
+                    child: GestureDetector(
+                      onTap: () {
+                      },
+                      child: Image.network(
+                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 1]).toString()}',
+                          fit: BoxFit.fitWidth),
+                    ))
+                : Expanded(child: Container(width: 10, color: Colors.blue,), flex: 1),
+            (index * 3) + 2 < textures.length ?
+            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1,),
             (index * 3) + 2 < textures.length
                 ? Expanded(
                     child: Image.network(
                         '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
                         fit: BoxFit.fitWidth))
-                : Container(
-                    width: 100,
-                    height: 100,
-                  )
+                : Expanded(child: Container(width: 10), flex: 1,)
           ]);
         },
       ),

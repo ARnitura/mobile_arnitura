@@ -318,7 +318,7 @@ class _PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                               .postMessage(
                               '_FlutterMessageHandler', 'StartAR', '');
                         }).then((value) => s0.downloadModel(idPostUnityModel));
-                        blindArWidget.setTexture();
+                        keyToBlind.currentState?.setTexture();
                       } // Если переход был совершен на экран ar(Инициализация)
                     }, // Кнопка дополненной реальности0
                     icon: Image.asset(

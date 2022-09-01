@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 
 import 'ar.dart';
@@ -10,7 +11,6 @@ late UnityWidgetController unityWidgetController;
 var s0 = ArWidget(
     id_texture: idTextureUnityModel,
     id_post: idPostUnityModel);
-var blindArWidget = BlindWidget(id_texture: idTextureUnityModel,
-    id_post: idPostUnityModel);
+GlobalKey<BlindWidgetState> keyToBlind = GlobalKey();
 String dirloc = "";
 var maps = [];
