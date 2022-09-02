@@ -408,6 +408,9 @@ class BlindWidget extends StatefulWidget {
 class BlindWidgetState extends State<BlindWidget> {
   var countBlind = 0;
   var textures = idTextureUnityModel.split(', ');
+  var clearBlind = Expanded(
+    child: Container(color: Colors.grey), flex: 1,
+  );
 
   @override
   void initState() {
@@ -417,7 +420,6 @@ class BlindWidgetState extends State<BlindWidget> {
 
   void calculateBlindCount() {
     if (idTextureUnityModel != 'None') {
-      idTextureUnityModel = idTextureUnityModel.split(', ');
       if (0 < textures.length && textures.length < 3) {
         countBlind = 1;
       } else if (textures.length % 3 == 0 || textures.length % 3 == 1) {
@@ -449,20 +451,16 @@ class BlindWidgetState extends State<BlindWidget> {
                 ? Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        setState(() {
-                          // Navigator.pop(context);
-                        });
+
                       },
                       child: Image.network(
                           '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3)]).toString()}',
                           fit: BoxFit.fitWidth),
                     ),
                   )
-                : Expanded(
-                    child: Container(width: 10), flex: 1,
-                  ),
+                : clearBlind,
             (index * 3) + 1 < textures.length ?
-            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1,),
+            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1),
             (index * 3) + 1 < textures.length
                 ? Expanded(
                     child: GestureDetector(
@@ -472,18 +470,19 @@ class BlindWidgetState extends State<BlindWidget> {
                           '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 1]).toString()}',
                           fit: BoxFit.fitWidth),
                     ))
-                : Expanded(child: Container(width: 10, color: Colors.blue,), flex: 1),
+                : clearBlind,
             (index * 3) + 2 < textures.length ?
-            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1,),
+            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1),
             (index * 3) + 2 < textures.length
                 ? Expanded(
                     child: Image.network(
                         '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
                         fit: BoxFit.fitWidth))
-                : Expanded(child: Container(width: 10), flex: 1,)
+                : clearBlind
           ]);
         },
       ),
     );
   }
 }
+
