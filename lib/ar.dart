@@ -300,18 +300,11 @@ class ArWidgetState extends State<ArWidget> {
               child: UnityScreen,
             ),
             Positioned(
-              top: position.dy - 100,
+              top: position.dy - 50,
               child: GestureDetector(
-                onHorizontalDragStart: (DragStartDetails start) {
-                  setState(() {
-                    if (blockSwipe >= start.globalPosition.dy  && start.globalPosition.dy >= 400) {
-                      position = Offset(0, start.globalPosition.dy);
-                    }
-                  });
-                },
                 onHorizontalDragUpdate: (DragUpdateDetails details) {
                   setState(() {
-                    if (blockSwipe >= details.globalPosition.dy  && details.globalPosition.dy >= 400) {
+                    if (blockSwipe >= details.globalPosition.dy + 50 && details.globalPosition.dy >= details.globalPosition.dy + 50 + (MediaQuery.of(context).size.width / 3) * (countBlind ~/ 3)) {
                       position = Offset(0, details.globalPosition.dy);
                     }
                   });
@@ -395,7 +388,6 @@ class BlindWidget extends StatefulWidget {
 }
 
 class BlindWidgetState extends State<BlindWidget> {
-  var countBlind = 0;
   var textures = idTextureUnityModel.split(', ');
   var clearBlind = Expanded(
     child: Container(color: Colors.grey),

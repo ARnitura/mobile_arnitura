@@ -7,6 +7,7 @@ var countMaxTexture = "0"; // Номер скачивающейся карты
 var countMaxMap = "0"; // Максимальное количество карт в текстуре
 var countMapLoading = "0"; // Скачано карт
 var percentMapLoading = "0%"; // Процент скачивания карты
+var countBlind = 0;
 
 resetLoadingStats() {
   percentModelLoading = "0%";

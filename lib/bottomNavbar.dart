@@ -37,53 +37,56 @@ class arniturabottomNavBarState extends State<arniturabottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-        IconButton(
-          icon: Image.asset('assets/image/home_icon.png',
-              width: 35,
-              color:
-                  widget.currentIndex == 0 ? Color(0xff4094D0) : Colors.black),
-          onPressed: () {
-            if (widget.currentIndex != 0) {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MyApp(data: 'null')));
-            }
-            setState(() {
-              indexUnityPageLayer = 0;
-            });
-          },
-        ),
-        // IconButton(
-        //   icon: Image.asset('assets/image/search_icon.png',
-        //       width: 35,
-        //       color:
-        //       widget.currentIndex == 1 ? Color(0xff4094D0) : Colors.black),
-        //   onPressed: () {
-        //     if (widget.currentIndex != 1) {
-        //       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Search()));
-        //     }
-        //     setState(() {
-        //       widget.currentIndex = 1;
-        //     });
-        //   },
-        // ),
-        IconButton(
-          icon: Image.asset('assets/image/shop_icon.png',
-              width: 35,
-              color:
-              widget.currentIndex == 2 ? Color(0xff4094D0) : Colors.black),
-          onPressed: () {
-            if (widget.currentIndex != 2) {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ShopingWidget()));
-            }
-            setState(() {
-              widget.currentIndex = 2;
-            });
-          },
-        ),
-      ]),
+    return Container(
+      height: 50,
+      child: BottomAppBar(
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+          IconButton(
+            icon: Image.asset('assets/image/home_icon.png',
+                width: 35,
+                color:
+                    widget.currentIndex == 0 ? Color(0xff4094D0) : Colors.black),
+            onPressed: () {
+              if (widget.currentIndex != 0) {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MyApp(data: 'null')));
+              }
+              setState(() {
+                indexUnityPageLayer = 0;
+              });
+            },
+          ),
+          // IconButton(
+          //   icon: Image.asset('assets/image/search_icon.png',
+          //       width: 35,
+          //       color:
+          //       widget.currentIndex == 1 ? Color(0xff4094D0) : Colors.black),
+          //   onPressed: () {
+          //     if (widget.currentIndex != 1) {
+          //       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Search()));
+          //     }
+          //     setState(() {
+          //       widget.currentIndex = 1;
+          //     });
+          //   },
+          // ),
+          IconButton(
+            icon: Image.asset('assets/image/shop_icon.png',
+                width: 35,
+                color:
+                widget.currentIndex == 2 ? Color(0xff4094D0) : Colors.black),
+            onPressed: () {
+              if (widget.currentIndex != 2) {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ShopingWidget()));
+              }
+              setState(() {
+                widget.currentIndex = 2;
+              });
+            },
+          ),
+        ]),
+      ),
     );
   }
 }
