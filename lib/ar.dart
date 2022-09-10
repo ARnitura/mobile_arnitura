@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:arnituramobile/loadingModels.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:http/http.dart';
@@ -23,39 +24,32 @@ Offset position = Offset(0, 0);
 class ArWidget extends StatefulWidget {
   final String id_texture;
   final String id_post;
+  final ArWidgetController ArChildController;
+  final Function setStatePosts;
 
   ArWidget({
-    Key? key,
     required this.id_texture,
     required this.id_post,
-  }) : super(key: key);
-
-  final ArWidgetState myAppState = new ArWidgetState();
+    required this.ArChildController,
+    required this.setStatePosts,
+  });
 
   @override
-  ArWidgetState createState() => ArWidgetState();
-
-  void getPath() {
-    myAppState.getPath();
-  }
-
-  void downloadModel(id_post) {
-    myAppState.downloadModel(id_post);
-  }
-
-  void downloadTextureToModel() {
-    myAppState.downloadTextureToModel();
-  }
+  ArWidgetState createState() => ArWidgetState(ArChildController, this.setStatePosts);
 }
 
 class ArWidgetState extends State<ArWidget> {
+  ArWidgetState(ArWidgetController ArChildController, Function setStatePosts) {
+    ArChildController.downloadModel = downloadModel;
+    ArChildController.downloadTextureToModel = downloadTextureToModel;
+  }
+
   var cartInfo;
   var inCart = true;
 
   var progress_download = "0";
   var downloaded_texture = '';
   var max_textures = '';
-  var downloaded_maps = '';
   var max_maps = '';
   var model_path = "No Data";
 
@@ -64,8 +58,10 @@ class ArWidgetState extends State<ArWidget> {
   }
 
   late UnityWidgetController _unityWidgetController;
-  BlindWidget blind =
-      BlindWidget(id_texture: idTextureUnityModel, id_post: idPostUnityModel);
+  final BlindWidgetController BlindController = BlindWidgetController();
+  final MainWidgetController MainController = MainWidgetController();
+  late LoadingPageController Loading = LoadingController;
+  late BlindWidget blind;
   late UnityWidget UnityScreen;
 
   Dio dio = Dio();
@@ -87,7 +83,7 @@ class ArWidgetState extends State<ArWidget> {
         enablePlaceholder: false,
         fullscreen: false);
     this.blind =
-        BlindWidget(id_texture: idTextureUnityModel, id_post: idPostUnityModel);
+        BlindWidget(id_texture: idTextureUnityModel, id_post: idPostUnityModel, controller: BlindController);
     initCartInfo();
     initPosition();
   }
@@ -103,9 +99,9 @@ class ArWidgetState extends State<ArWidget> {
     }
   } // Путь до папки документов на устройстве пользователя
 
-  Future<void> downloadModel(id_post) async {
+  Future<void> downloadModel() async {
     var res = await post(Uri.parse('${url_server}/api/get_info_post'),
-        body: {'id_post': id_post}); // Получаем информацию о посте
+        body: {'id_post': idPostUnityModel}); // Получаем информацию о посте
     var manufacturer_id = jsonDecode(res.body)['0']['manufacturer_id'];
     var model_id = jsonDecode(res.body)['0']['model_id'];
     var model_path =
@@ -119,29 +115,32 @@ class ArWidgetState extends State<ArWidget> {
       FileUtils.mkdir([dirloc]); // Если папка отсутсвует, то создается новая
       await dio.download(DownloadUrl, model_path,
           onReceiveProgress: (receivedBytes, totalBytes) {
-        // // setState(() {
-        progress_download =
-            "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
-        print(progress_download);
+            percentModelLoading = "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
+            Loading.setPercentModelLoading(); // Изменение переменной загрузки
+            setState(() {});
       });
       // });
       // } catch (e) {
       //   print(e);
       // }
       // setState(() {
-      progress_download = "Complete - 100%";
-      // });
+    } else {
+      percentModelLoading = '100%';
+      Loading.setPercentModelLoading();
+      setState(() {});
     }
-    downloadTextureToModel();
     this.model_path = model_path;
   }
 
   Future<void> downloadTextureToModel() async {
+    maps = [];
     var textures = idTextureUnityModel.split(', ');
     var res = await post(Uri.parse('${url_server}/api/get_info_post'),
         body: {'id_post': idPostUnityModel}); // Получаем информацию о посте
     var manufacturer_id = jsonDecode(res.body)['0']['manufacturer_id'];
-    max_textures = textures.length.toString(); // Количество текстур
+    this.max_textures = textures.length.toString(); // Количество текстур
+    countMaxTexture = max_textures;
+    Loading.setCountMaxTexture(); // Выводим количествово текстур
     for (int i = 0; i < textures.length; i++) {
       var texture_info =
           await post(Uri.parse('${url_server}/api/maps_info'), body: {
@@ -150,7 +149,8 @@ class ArWidgetState extends State<ArWidget> {
       }); // Получаем список карт для модели
       var maps = jsonDecode(texture_info.body)['maps'].split(', ');
       max_maps = maps.length.toString(); // Количество карт в этой текстуре
-      print(textures[i]);
+      countMaxMap = max_maps;
+      Loading.setCountMaxMap(); // Выводим количество карт в текстуре
       for (int j = 0; j < maps.length; j++) {
         checkMap(maps[j], manufacturer_id, textures[i]);
         var map_path =
@@ -166,14 +166,18 @@ class ArWidgetState extends State<ArWidget> {
               var progress_download_map =
                   "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
               print(progress_download_map);
+              percentMapLoading = progress_download_map;
+              Loading.setPercentMapLoading();
             });
           } catch (e) {
             print(e);
           }
         }
-        downloaded_maps = (j + 1).toString();
+        countMapLoading = (j + 1).toString();
+        Loading.setCountMapLoading();
       }
-      downloaded_texture = (i + 1).toString();
+      countTextureLoading = (i + 1).toString();
+      Loading.setCountTextureLoading();
     }
     print('installed');
     addModel(model_path);
@@ -235,38 +239,35 @@ class ArWidgetState extends State<ArWidget> {
   }
 
   void onUnityCreated(controller) {
-    print('11221');
     unityWidgetController = controller;
     unityWidgetController.postMessage('_FlutterMessageHandler', 'StartAR', '');
     this._unityWidgetController = controller;
     this._unityWidgetController.pause();
     this._unityWidgetController.resume();
-    if (idPostUnityModel != 'None') {
-      downloadModel(idPostUnityModel);
-    }
     // Пауза и запуск, нужны для решения бага
   }
 
   void onUnityMessage(message) {
     if (message == 'ar_model_loaded') {
+      indexUnityPageLayer = 1;
+      widget.setStatePosts();
       setTexture();
+      BlindController.setTexture();
     }
   }
 
-  // todo: На данный момент никак не регулируется разделение потока данных
-  // по этому если приходит любое сообщение из юнити сразу назначается текстура
-
   void addModel(path) {
-    unityWidgetController.postMessage(
-      '_FlutterMessageHandler',
-      'LoadModel',
-      path,
-    );
+    unityWidgetController
+        .postMessage(
+          '_FlutterMessageHandler',
+          'LoadModel',
+          path,
+        )?.then((value) => resetLoadingStats());
     print('Модель загружена');
   }
 
   Future<void> setTexture() async {
-    Future.delayed(Duration(seconds: 5)).then((value) => unityWidgetController
+    Future.delayed(Duration(seconds: 0)).then((value) => unityWidgetController
         .postMessage('_FlutterMessageHandler', 'LoadTexture', maps.join(", ")));
   }
 
@@ -274,6 +275,7 @@ class ArWidgetState extends State<ArWidget> {
 
   @override
   Widget build(BuildContext context) {
+    var blockSwipe = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 30;
     return LoaderOverlay(
       useDefaultLoading: false,
       overlayWidget: Center(
@@ -285,109 +287,95 @@ class ArWidgetState extends State<ArWidget> {
               height: 200.0,
               width: 200.0,
             ),
-            Text("Model: ${progress_download}%/100%",
-                style: TextStyle(
-                    decoration: TextDecoration.none,
-                    color: Colors.white,
-                    fontSize: 30)),
-            Text(
-              "Textures: ${downloaded_texture}/${max_textures}",
-              style: TextStyle(
-                  decoration: TextDecoration.none,
-                  color: Colors.white,
-                  fontSize: 30),
-            ),
-            Text(
-              "Maps: ${downloaded_maps}/${max_maps}",
-              style: TextStyle(
-                  decoration: TextDecoration.none,
-                  color: Colors.white,
-                  fontSize: 30),
-            ),
           ],
         ),
       ),
       child: Scaffold(
         bottomNavigationBar: arniturabottomNavBar(currentIndex: -1),
-        body: Center(
-          child: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              Container(
-                color: Colors.black,
-                child: UnityScreen,
+        body: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            Container(
+              color: Colors.black,
+              child: UnityScreen,
+            ),
+            Positioned(
+              top: position.dy - 100,
+              child: GestureDetector(
+                onHorizontalDragStart: (DragStartDetails start) {
+                  setState(() {
+                    if (blockSwipe >= start.globalPosition.dy  && start.globalPosition.dy >= 400) {
+                      position = Offset(0, start.globalPosition.dy);
+                    }
+                  });
+                },
+                onHorizontalDragUpdate: (DragUpdateDetails details) {
+                  setState(() {
+                    if (blockSwipe >= details.globalPosition.dy  && details.globalPosition.dy >= 400) {
+                      position = Offset(0, details.globalPosition.dy);
+                    }
+                  });
+                  // print(details.globalPosition);
+                },
+                child: blind,
               ),
-              Positioned(
-                top: position.dy - 300,
-                child: GestureDetector(
-                  onHorizontalDragUpdate: (DragUpdateDetails details) {
-                    setState(() {
-                      if (details.globalPosition.dy >= 400) {
-                        position = Offset(0, details.globalPosition.dy);
-                      }
-                    });
-                    // print(details.globalPosition);
-                  },
-                  child: blind,
-                ),
+            ),
+            Positioned(
+              right: 20,
+              bottom: 70,
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: IconButton(
+                    icon: inCart == false
+                        ? Icon(Icons.add)
+                        : Icon(Icons.remove),
+                    onPressed: () {
+                      var jsoncart = '{"id": "' +
+                          idPostUnityModel.toString() +
+                          '", "count": "1", "Material": "' +
+                          idTextureUnityModel.toString() +
+                          '" }'; // Генерируется json
+                      var objectToCart = jsonDecode(
+                          jsoncart); // Объект товара который будет добавлятся в корзину
+                      var object = Map<String, dynamic>.from(
+                          cartInfo); // Объект корзины
+                      for (int i = 0; i < object.keys.length; i++) {
+                        if (cartInfo[object.keys.elementAt(i)]['id'] ==
+                            objectToCart['id']) {
+                          object.remove(object.keys.elementAt(i));
+                          cartInfo =
+                              jsonDecode(JsonEncoder().convert(object));
+                          setState(() {
+                            inCart = false;
+                          });
+                          updateCartInfo();
+                          return;
+                        } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
+                      } // В другом случае товар добавляется в корзину
+                      var index = Map<String, dynamic>.from(cartInfo)
+                                  .keys
+                                  .length ==
+                              0
+                          ? '0'
+                          : (int.parse(Map<String, dynamic>.from(cartInfo)
+                                      .keys
+                                      .last) +
+                                  1)
+                              .toString(); // Получение последнего индекса в словаре
+                      this.cartInfo[index] =
+                          objectToCart; // Добавение товара в корзину
+                      setState(() {
+                        inCart = true;
+                      });
+                      print(this.cartInfo.toString());
+                      updateCartInfo();
+                    },
+                    splashRadius: 1,
+                    color: Colors.black,
+                    splashColor: Colors.black),
               ),
-              Positioned(
-                right: 20,
-                bottom: 70,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: IconButton(
-                      icon: inCart == false
-                          ? Icon(Icons.add)
-                          : Icon(Icons.remove),
-                      onPressed: () {
-                        var jsoncart = '{"id": "' +
-                            idPostUnityModel.toString() +
-                            '", "count": "1", "Material": "' +
-                            idTextureUnityModel.toString() +
-                            '" }'; // Генерируется json
-                        var objectToCart = jsonDecode(
-                            jsoncart); // Объект товара который будет добавлятся в корзину
-                        var object = Map<String, dynamic>.from(
-                            cartInfo); // Объект корзины
-                        for (int i = 0; i < object.keys.length; i++) {
-                          if (cartInfo[object.keys.elementAt(i)]['id'] ==
-                              objectToCart['id']) {
-                            object.remove(object.keys.elementAt(i));
-                            cartInfo =
-                                jsonDecode(JsonEncoder().convert(object));
-                            setState(() {
-                              inCart = false;
-                            });
-                            updateCartInfo();
-                            return;
-                          } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
-                        } // В другом случае товар добавляется в корзину
-                        var index = Map<String, dynamic>.from(cartInfo)
-                                    .keys
-                                    .length ==
-                                0
-                            ? '0'
-                            : (int.parse(Map<String, dynamic>.from(cartInfo)
-                                        .keys
-                                        .last) +
-                                    1)
-                                .toString(); // Получение последнего индекса в словаре
-                        this.cartInfo[index] =
-                            objectToCart; // Добавение товара в корзину
-                        setState(() {
-                          inCart = true;
-                        });
-                        print(this.cartInfo.toString());
-                        updateCartInfo();
-                      },
-                      splashRadius: 1,
-                      color: Colors.black,
-                      splashColor: Colors.black),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -397,20 +385,26 @@ class ArWidgetState extends State<ArWidget> {
 class BlindWidget extends StatefulWidget {
   final String id_texture;
   final String id_post;
+  final BlindWidgetController controller;
 
-  BlindWidget({Key? key, required this.id_texture, required this.id_post})
-      : super(key: keyToBlind);
+
+  BlindWidget({required this.id_texture, required this.id_post, required this.controller});
 
   @override
-  BlindWidgetState createState() => BlindWidgetState();
+  BlindWidgetState createState() => BlindWidgetState(controller);
 }
 
 class BlindWidgetState extends State<BlindWidget> {
   var countBlind = 0;
   var textures = idTextureUnityModel.split(', ');
   var clearBlind = Expanded(
-    child: Container(color: Colors.grey), flex: 1,
+    child: Container(color: Colors.grey),
+    flex: 1,
   );
+
+  BlindWidgetState(BlindWidgetController _controller) {
+    _controller.setTexture = setTexture;
+  }
 
   @override
   void initState() {
@@ -441,48 +435,60 @@ class BlindWidgetState extends State<BlindWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: 200,
-      child: ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: countBlind,
-        itemBuilder: (BuildContext buildContext, int index) {
-          return Row(children: [
-            index * 3 < textures.length
-                ? Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-
-                      },
-                      child: Image.network(
-                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3)]).toString()}',
-                          fit: BoxFit.fitWidth),
-                    ),
-                  )
-                : clearBlind,
-            (index * 3) + 1 < textures.length ?
-            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1),
-            (index * 3) + 1 < textures.length
-                ? Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                      },
+      height: 140,
+      child: Expanded(
+        child: ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: countBlind,
+          itemBuilder: (BuildContext buildContext, int index) {
+            return Row(children: [
+              index * 3 < textures.length
+                  ? Expanded(
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: Image.network(
+                            '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3)]).toString()}',
+                            fit: BoxFit.fitWidth),
+                      ),
+                    )
+                  : clearBlind,
+              (index * 3) + 1 < textures.length
+                  ? Container(color: Colors.black, width: 1, height: 125)
+                  : SizedBox(width: 1),
+              (index * 3) + 1 < textures.length
+                  ? Expanded(
+                      child: GestureDetector(
+                      onTap: () {},
                       child: Image.network(
                           '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 1]).toString()}',
                           fit: BoxFit.fitWidth),
                     ))
-                : clearBlind,
-            (index * 3) + 2 < textures.length ?
-            Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1),
-            (index * 3) + 2 < textures.length
-                ? Expanded(
-                    child: Image.network(
-                        '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
-                        fit: BoxFit.fitWidth))
-                : clearBlind
-          ]);
-        },
+                  : clearBlind,
+              (index * 3) + 2 < textures.length
+                  ? Container(color: Colors.black, width: 1, height: 125)
+                  : SizedBox(width: 1),
+              (index * 3) + 2 < textures.length
+                  ? Expanded(
+                      child: Image.network(
+                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
+                          fit: BoxFit.fitWidth))
+                  : clearBlind
+            ]);
+          },
+        ),
       ),
     );
   }
 }
 
+class BlindWidgetController {
+  late void Function() setTexture;
+}
+
+class MainWidgetController {
+  late void Function() setStatePosts;
+}
+
+class LoadingWidgetController {
+  late void Function() setPercentModelLoading;
+}

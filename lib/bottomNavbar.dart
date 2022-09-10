@@ -6,13 +6,13 @@ import 'package:arnituramobile/globals.dart';
 
 class arniturabottomNavBar extends StatefulWidget {
   var currentIndex = 0;
-  arniturabottomNavBar({Key? key, required this.currentIndex}) : super(key: key);
+  arniturabottomNavBar({required this.currentIndex});
 
   @override
-  State<arniturabottomNavBar> createState() => _arniturabottomNavBarState();
+  State<arniturabottomNavBar> createState() => arniturabottomNavBarState();
 }
 
-class _arniturabottomNavBarState extends State<arniturabottomNavBar> {
+class arniturabottomNavBarState extends State<arniturabottomNavBar> {
   var prefs;
 
   @override

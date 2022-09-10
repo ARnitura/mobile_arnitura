@@ -1,13 +1,16 @@
 import 'dart:convert';
 
+import 'package:arnituramobile/loadingModels.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arnituramobile/globals.dart';
 import 'app_bar_drawer_list.dart';
+import 'ar.dart';
 import 'bottomNavbar.dart';
 import 'main_drawer.dart';
 import 'post.dart';
 import 'first_screen.dart';
+import 'globals.dart';
 
 Future<void> main() async {
   return runApp(MaterialApp(
@@ -28,13 +31,13 @@ Future<void> main() async {
 class MyApp extends StatefulWidget {
   final String data;
 
-  MyApp({Key? key, required this.data}) : super(key: key);
+  MyApp({required this.data});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MyApp> createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   var posts = [];
   var lasts_posts = '{}';
   var index = 0;
@@ -63,7 +66,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    var s1 =Builder(
+    var s1 = Builder(
       builder: (context) => Scaffold(
           backgroundColor: Colors.white,
           drawer: DrawerKreslo(),
@@ -88,12 +91,16 @@ class _MyAppState extends State<MyApp> {
           ),
           bottomNavigationBar: arniturabottomNavBar(currentIndex: 0)),
     );
-    var list = [s1, s0];
+    var s0 = ArWidget(
+        id_texture: idTextureUnityModel,
+        id_post: idPostUnityModel, ArChildController: ArController, setStatePosts: this.setStatePosts);
+    var loading = LoadingWidget();
+    var listWidgets = [s1, s0, loading];
     return MaterialApp(
       home: Scaffold(
         body: IndexedStack(
           index: indexUnityPageLayer,
-          children: list,
+          children: listWidgets,
         ),
       ),
     );

@@ -24,11 +24,11 @@ class Post extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<Post> createState() => _PostState();
+  State<Post> createState() => PostState();
 }
 
 
-class _PostState extends State<Post> with AutomaticKeepAliveClientMixin {
+class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
   var isLiked = false;
   var _currentIndex = 1;
   var countLikes = '0';
@@ -47,6 +47,10 @@ class _PostState extends State<Post> with AutomaticKeepAliveClientMixin {
     super.initState();
     initStateLike();
     print('post init');
+  }
+
+  void setStatePosts() {
+    widget.setStatePosts();
   }
 
   void initStateLike() async {
@@ -309,18 +313,19 @@ class _PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                           ['material_id_furniture'];
                       idPostUnityModel = widget.id;
                       indexUnityPageLayer == 0
-                          ? indexUnityPageLayer = 1
+                          ? indexUnityPageLayer = 2
                           : indexUnityPageLayer = 0;
                       widget.setStatePosts(); // Переход между экранами
-                      if (indexUnityPageLayer == 1) {
-                        Future.delayed(const Duration(milliseconds: 3000), () {
+                      if (indexUnityPageLayer == 2) {
+                        idPostUnityModel = idPostUnityModel;
+                        Future.delayed(const Duration(milliseconds: 0), () {
                           unityWidgetController
                               .postMessage(
                               '_FlutterMessageHandler', 'StartAR', '');
-                        }).then((value) => s0.downloadModel(idPostUnityModel));
-                        keyToBlind.currentState?.setTexture();
+                        }).then((value) => ArController.downloadModel())
+                            .then((value) => ArController.downloadTextureToModel());
                       } // Если переход был совершен на экран ar(Инициализация)
-                    }, // Кнопка дополненной реальности0
+                    }, // Кнопка дополненной реальности
                     icon: Image.asset(
                       'assets/image/ar_button.png',
                       width: 40,
