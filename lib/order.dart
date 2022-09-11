@@ -102,7 +102,7 @@ class _OrderWidgetState extends State<OrderWidget> {
           )),
           Padding(
             padding: const EdgeInsets.only(bottom: 100),
-            child: OutlinedButton(
+            child: _value == true ? OutlinedButton(
               onPressed: () {
                 showDialog(
                     context: context,
@@ -131,6 +131,21 @@ class _OrderWidgetState extends State<OrderWidget> {
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(50))),
               ),
+            ) : OutlinedButton(
+              onPressed: () {},
+              child: Text('Оформить заказ',
+                  style: TextStyle(
+                      color: Color(0xff83868B),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400)),
+              style: ButtonStyle(
+                  overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(50)))),
+                  side: MaterialStateProperty.all<BorderSide>(BorderSide(
+                      width: 1.5, color: Color(0xff83868B)))),
             ),
           )
         ],

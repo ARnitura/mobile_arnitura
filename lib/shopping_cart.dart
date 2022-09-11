@@ -93,8 +93,7 @@ class _ShopingWidgetState extends State<ShopingWidget> {
     list_to_buy.remove(index.toString());
     var prefs = await SharedPreferences.getInstance();
     prefs.setString('cart_info', jsonEncode(list_to_buy));
-    setState(() {
-    });
+    setState(() {});
   }
 
   void updateState() async {
@@ -105,15 +104,15 @@ class _ShopingWidgetState extends State<ShopingWidget> {
     dynamic list_orders;
     if (prefs.getString('list_orders') == null) {
       list_orders = jsonDecode('{}');
+    } else {
+      list_orders = Map<String, dynamic>.from(
+          jsonDecode(prefs.getString('list_orders')!));
     }
-    else
-      {
-        list_orders = Map<String, dynamic>.from(jsonDecode(prefs.getString('list_orders')!));
-      }
     for (var i = 0; i < list_to_buy.length; i++) {
       if (values[i]) {
         if (list_orders[i.toString()] == null) {
-          list_orders[i.toString()] = list_to_buy[list_to_buy.keys.elementAt(i)];
+          list_orders[i.toString()] =
+              list_to_buy[list_to_buy.keys.elementAt(i)];
         }
         countSelected +=
             int.parse(list_to_buy[list_to_buy.keys.elementAt(i)]['count']);
@@ -270,7 +269,9 @@ class _ShopingWidgetState extends State<ShopingWidget> {
                                                   Text(
                                                       snapshot.data[
                                                               'price_furniture']
-                                                          .toInt().toString(), // Образаем копейки
+                                                          .toInt()
+                                                          .toString(),
+                                                      // Образаем копейки
                                                       style: TextStyle(
                                                           color: Colors.black,
                                                           fontWeight:
@@ -282,17 +283,16 @@ class _ShopingWidgetState extends State<ShopingWidget> {
                                           ),
                                         ),
                                         Positioned(
-                                              child: GestureDetector(
+                                            child: GestureDetector(
                                                 child: Icon(
                                                   Icons.close,
                                                   color: Color(0xff4094D0),
                                                 ),
                                                 onTap: () {
                                                   deleteCart(index);
-                                                }
-                                              ),
-                                              right: 20,
-                                              top: 0),
+                                                }),
+                                            right: 20,
+                                            top: 0),
                                         Positioned(
                                             child: CountWidget(
                                                 count: int.parse(list_to_buy[
@@ -323,25 +323,41 @@ class _ShopingWidgetState extends State<ShopingWidget> {
                               color: Color(0xff4094D0),
                               fontWeight: FontWeight.w600)),
                       SizedBox(height: 40),
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OrderWidget()));
-                        },
-                        child: Text('Перейти к оформлению',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400)),
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: Color(0xff4094D0),
-                          shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(50))),
-                        ),
-                      ),
+                      values.contains(true)
+                          ? OutlinedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => OrderWidget()));
+                              },
+                              child: Text('Перейти к оформлению',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w400)),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Color(0xff4094D0),
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(50))),
+                              ))
+                          : OutlinedButton(
+                              onPressed: () {},
+                              child: Text('Перейти к оформлению',
+                                  style: TextStyle(
+                                      color: Color(0xff83868B),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w400)),
+                              style: ButtonStyle(
+                                overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(50)))),
+                                  side: MaterialStateProperty.all<BorderSide>(BorderSide(
+                                      width: 1.5, color: Color(0xff83868B)))),
+                            ),
                     ],
                   )
                 ],
