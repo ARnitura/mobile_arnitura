@@ -20,9 +20,8 @@ class ShopingWidget extends StatefulWidget {
 
 class _ShopingWidgetState extends State<ShopingWidget> {
   List<bool> values = []; // Список чекбоксов
-  var list_to_buy = {}; // TODO: убрать это ненужный словарь
   var countSelected = 0;
-  var priceSelected = 0;
+  num priceSelected = 0;
   var prices = [];
 
   @override
@@ -78,6 +77,7 @@ class _ShopingWidgetState extends State<ShopingWidget> {
       'avatar_furniture': photos
     };
   }
+
   // Подтягивается информация о каждом товаре
 
   void setChoice(value, index) {
@@ -97,10 +97,9 @@ class _ShopingWidgetState extends State<ShopingWidget> {
   }
 
   void updateState() async {
-    initCartInfo();
+    var prefs = await SharedPreferences.getInstance();
     countSelected = 0;
     priceSelected = 0;
-    var prefs = await SharedPreferences.getInstance();
     dynamic list_orders;
     if (prefs.getString('list_orders') == null) {
       list_orders = jsonDecode('{}');
@@ -128,8 +127,34 @@ class _ShopingWidgetState extends State<ShopingWidget> {
       } // если товар не выбран то удаляется из памяти
     }
     prefs.setString('list_orders', jsonEncode(list_orders));
+    prefs.setString('cart_info', jsonEncode(list_to_buy));
     setState(() {});
-  } // Меняется состояние в памяти
+  } // Меняется состояние корзины в памяти
+
+
+  void setTotal() async {
+    updateState();
+    final prefs = await SharedPreferences.getInstance();
+    countSelected = 0;
+    priceSelected = 0;
+    var cart = jsonDecode(prefs.getString('cart_info')!);
+    dynamic list_orders;
+    if (prefs.getString('list_orders') == null) {
+      list_orders = jsonDecode('{}');
+    } else {
+      list_orders = Map<String, dynamic>.from(
+          jsonDecode(prefs.getString('list_orders')!));
+    } // Получение состояния корзины из памяти
+    for (var i = 0; i < cart.length; i++) {
+      if (values[i]) {
+        countSelected += int.parse(cart[i.toString()]['count']);
+        var test = prices[i][prices[i].keys.elementAt(0)].toInt();
+        priceSelected += int.parse(cart[i.toString()]['count']) * test;
+      }
+    }
+    prefs.setString('cart_info', jsonEncode(list_to_buy));
+    prefs.setString('list_orders', jsonEncode(list_orders));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -292,14 +317,14 @@ class _ShopingWidgetState extends State<ShopingWidget> {
                                                   deleteCart(index);
                                                 }),
                                             right: 20,
-                                            top: 0),
+                                            top: 0), // Удалить из корзины
                                         Positioned(
                                             child: CountWidget(
                                                 count: int.parse(list_to_buy[
                                                         list_to_buy.keys
                                                             .elementAt(index)]
                                                     ['count']),
-                                                index: index),
+                                                index: index, setStateCell: setTotal),
                                             right: 20,
                                             bottom: 5),
                                       ],
@@ -313,52 +338,63 @@ class _ShopingWidgetState extends State<ShopingWidget> {
                           );
                         }),
                   ),
-                  Column(
-                    children: [
-                      Text(priceSelected.toString() + ' ₽',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 28)),
-                      Text('Товаров выбрано: ' + countSelected.toString(),
-                          style: TextStyle(
-                              color: Color(0xff4094D0),
-                              fontWeight: FontWeight.w600)),
-                      SizedBox(height: 40),
-                      values.contains(true)
-                          ? OutlinedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => OrderWidget()));
-                              },
-                              child: Text('Перейти к оформлению',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w400)),
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: Color(0xff4094D0),
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(50))),
-                              ))
-                          : OutlinedButton(
-                              onPressed: () {},
-                              child: Text('Перейти к оформлению',
-                                  style: TextStyle(
-                                      color: Color(0xff83868B),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w400)),
-                              style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
-                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.transparent),
-                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(50)))),
-                                  side: MaterialStateProperty.all<BorderSide>(BorderSide(
-                                      width: 1.5, color: Color(0xff83868B)))),
-                            ),
-                    ],
+                  StatefulBuilder(
+                    builder: (BuildContext context,
+                        void Function(void Function()) setter) {
+                      internalSetter = setter;
+                      return Column(
+                        children: [
+                          Text(priceSelected.toString() + ' ₽',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 28)),
+                          Text('Товаров выбрано: ' + countSelected.toString(),
+                              style: TextStyle(
+                                  color: Color(0xff4094D0),
+                                  fontWeight: FontWeight.w600)),
+                          SizedBox(height: 40),
+                          values.contains(true)
+                              ? OutlinedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                OrderWidget()));
+                                  },
+                                  child: Text('Перейти к оформлению',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400)),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: Color(0xff4094D0),
+                                    shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(50))),
+                                  ))
+                              : OutlinedButton(
+                                  onPressed: () {},
+                                  child: Text('Перейти к оформлению',
+                                      style: TextStyle(
+                                          color: Color(0xff83868B),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w400)),
+                                  style: ButtonStyle(
+                                      overlayColor: MaterialStateProperty.all<Color>(
+                                          Colors.transparent),
+                                      backgroundColor: MaterialStateProperty.all<Color>(
+                                          Colors.transparent),
+                                      shape: MaterialStateProperty.all<
+                                              RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(50)))),
+                                      side: MaterialStateProperty.all<BorderSide>(
+                                          BorderSide(width: 1.5, color: Color(0xff83868B)))),
+                                ),
+                        ],
+                      );
+                    },
                   )
                 ],
               ),
@@ -370,16 +406,15 @@ class _ShopingWidgetState extends State<ShopingWidget> {
 class CountWidget extends StatefulWidget {
   int count;
   int index;
+  final VoidCallback setStateCell;
 
-  CountWidget({Key? key, required this.count, required this.index})
-      : super(key: key);
+  CountWidget({required this.count, required this.index, required this.setStateCell});
 
   @override
   _CountWidgetState createState() => _CountWidgetState();
 }
 
 class _CountWidgetState extends State<CountWidget> {
-  var list_to_buy = {};
 
   @override
   void initState() {
@@ -400,13 +435,14 @@ class _CountWidgetState extends State<CountWidget> {
   void saveInfoCount() async {
     var prefs = await SharedPreferences.getInstance();
     list_to_buy[list_to_buy.keys.elementAt(widget.index)]['count'] =
-        widget.count.toString();
+        widget.count.toString(); // Изменение количества мебели внутри объекта корзины
     prefs.setString('cart_info', jsonEncode(list_to_buy));
+    widget.setStateCell(); // Сохранание состояния корзины
+    internalSetter(() {}); // вызов обновления 'итого' на экране корзины(всегда происходит в конце)
   }
 
   @override
   Widget build(BuildContext context) {
-    getInfoCount();
     return Row(
       children: [
         Container(

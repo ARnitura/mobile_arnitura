@@ -1,4 +1,5 @@
 import 'package:arnituramobile/loadingModels.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 
 var percentModelLoading = "0%"; // Скачано процентов модели
@@ -8,6 +9,9 @@ var countMaxMap = "0"; // Максимальное количество карт
 var countMapLoading = "0"; // Скачано карт
 var percentMapLoading = "0%"; // Процент скачивания карты
 var countBlind = 0;
+
+late StateSetter internalSetter;
+var list_to_buy = {}; // TODO: убрать это ненужный словарь
 
 resetLoadingStats() {
   percentModelLoading = "0%";
@@ -21,7 +25,7 @@ resetLoadingStats() {
 
 LoadingPageController LoadingController = LoadingPageController();
 final ArWidgetController ArController = ArWidgetController();
-var url_server = 'https://arkreslo.ru';
+var url_server = 'http://192.168.218.118:5002';
 var indexUnityPageLayer = 0;
 dynamic idTextureUnityModel = 'None';
 var idPost = '';

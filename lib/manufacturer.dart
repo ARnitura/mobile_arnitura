@@ -24,10 +24,10 @@ class ManufacturerWidget extends StatefulWidget {
 }
 
 class _ManufacturerWidgetState extends State<ManufacturerWidget> {
-  var likes_count = 0;
-  var list_favourites = 0;
-  var list_products = 0;
-  var list_orders = 0;
+  dynamic likes_count = 0;
+  dynamic list_favourites = 0;
+  dynamic list_products = 0;
+  dynamic list_orders = 0;
 
   Future<String> getPhotoList() async {
     var _url = Uri.parse(url_server + '/api/get_list_photos');
@@ -39,10 +39,10 @@ class _ManufacturerWidgetState extends State<ManufacturerWidget> {
     var url = Uri.parse(url_server + '/api/get_counts_manufacturer');
     var res = await post(url, body: {'id_manufacturer': widget.manufacturer_id});
     setState(() {
-      likes_count = int.parse(jsonDecode(res.body)['likes_count']);
-      list_favourites = int.parse(jsonDecode(res.body)['list_favourites']);
-      list_products = int.parse(jsonDecode(res.body)['list_products']);
-      list_orders = int.parse(jsonDecode(res.body)['list_orders']);
+      likes_count = jsonDecode(res.body)['likes_count'];
+      list_favourites = jsonDecode(res.body)['list_favourites'];
+      list_products = jsonDecode(res.body)['list_products'];
+      list_orders = jsonDecode(res.body)['list_orders'];
     });
   }
 
@@ -57,32 +57,6 @@ class _ManufacturerWidgetState extends State<ManufacturerWidget> {
     var data = jsonDecode(widget.manufacturer_data);
     return Scaffold(
       bottomNavigationBar: arniturabottomNavBar(currentIndex: -1),
-      // bottomNavigationBar: BottomAppBar(
-      //     child: Row(
-      //   children: [
-      //     IconButton(
-      //         onPressed: () {
-      //           Navigator.pushReplacement(
-      //               context, MaterialPageRoute(builder: (context) => MyApp()));
-      //         },
-      //         icon: Image.asset('assets/image/home_icon.png')),
-      //     IconButton(
-      //         onPressed: () {
-      //           Navigator.push(
-      //               context, MaterialPageRoute(builder: (context) => Search()));
-      //         },
-      //         icon: Image.asset('assets/image/search_icon.png')),
-      //     IconButton(
-      //         onPressed: () {
-      //           // Navigator.push(context,
-      //           //     MaterialPageRoute(builder: (context) => HelloWorld()));
-      //           // Navigator.push(context,
-      //           //     MaterialPageRoute(builder: (context) => ArWidget()));
-      //         },
-      //         icon: Image.asset('assets/image/shop_icon.png')),
-      //   ],
-      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-      // )),  #TODO: Поменять в этом месте боттом бар
       drawer: DrawerKreslo(),
       appBar: AppBarDrawerList(''),
       body: Column(

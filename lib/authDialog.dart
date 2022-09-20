@@ -578,19 +578,19 @@ class _regDialogState extends State<regDialog> {
                     'address': addressController.text
                   });
                   if (jsonDecode(res.body)['description'] == 'success') {
-                    // var prefs = await SharedPreferences.getInstance();
-                    // prefs.setInt('stateAuth', 1);
-                    // prefs.setString('id', jsonDecode(res.body)['id'].toString());
-                    // prefs.setString('firstname', firstnameController.text);
-                    // prefs.setString('lastname', lastnameController.text);
-                    // prefs.setString('patronymic', patronymicController.text);
-                    // prefs.setString('phone', phoneController.text);
-                    // prefs.setString('mail', emailController.text);
-                    // prefs.setString('address', addressController.text);
-                    // prefs.setString('login', loginController.text);
-                    // prefs.setString('list_favourites', '');
-                    // prefs.setString('list_orders', '');
-                    // Navigator.pop(context);
+                    var prefs = await SharedPreferences.getInstance();
+                    prefs.setInt('stateAuth', 1);
+                    prefs.setString('id', jsonDecode(res.body)['id'].toString());
+                    prefs.setString('firstname', firstnameController.text);
+                    prefs.setString('lastname', lastnameController.text);
+                    prefs.setString('patronymic', patronymicController.text);
+                    prefs.setString('phone', phoneController.text);
+                    prefs.setString('mail', emailController.text);
+                    prefs.setString('address', addressController.text);
+                    prefs.setString('login', loginController.text);
+                    prefs.setString('list_favourites', '');
+                    prefs.setString('list_orders', '');
+                    Navigator.pop(context);
                   }
                   ;
                 }

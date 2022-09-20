@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:arnituramobile/globals.dart';
+import 'package:image_network/image_network.dart';
+
 
 class ContactWidget extends StatefulWidget {
   ContactWidget({Key? key}) : super(key: key);
@@ -17,8 +24,9 @@ class _ContactWidgetState extends State<ContactWidget> {
   var firstname = '';
   var lastname = '';
   var patronymic = '';
-  var avatar = '';
+  dynamic avatar = '';
   var id = '';
+  File? image;
 
   @override
   void initState() {
@@ -26,9 +34,17 @@ class _ContactWidgetState extends State<ContactWidget> {
     getInfoUserLocal();
   }
 
+  Future get_avatar_user() async {
+    avatar = ImageNetwork(
+        image: url_server + '/api/get_photo_user_avatar?user_id=' + id.toString(),
+        width: 80,
+        height: 80,
+      fitAndroidIos: BoxFit.cover);
+    setState(() {});
+  }
+
   edit_info_user(number, mail, address) async {
-    var res = await post(
-        Uri.parse(url_server + '/api/edit_info_user'),
+    var res = await http.post(Uri.parse(url_server + '/api/edit_info_user'),
         body: {
           'user_id': id,
           'number': number.text,
@@ -38,7 +54,7 @@ class _ContactWidgetState extends State<ContactWidget> {
     if (res.statusCode == 200) {
       var prefs = await SharedPreferences.getInstance();
       setState(() {
-        prefs.setString('phone',  number.text);
+        prefs.setString('phone', number.text);
         prefs.setString('mail', mail.text);
         prefs.setString('address', address.text);
         this.phoneNumber = number.text;
@@ -49,14 +65,13 @@ class _ContactWidgetState extends State<ContactWidget> {
   } // Редактирование информации о пользователе
 
   edit_fullname_user(lastname, firstname, patronymic) async {
-    var res = await post(
-        Uri.parse(url_server + '/api/edit_fullname_user'),
-        body: {
-          'user_id': id,
-          'firstname': firstname.text,
-          'lastname': lastname.text,
-          'patronymic': patronymic.text
-        });
+    var res = await http
+        .post(Uri.parse(url_server + '/api/edit_fullname_user'), body: {
+      'user_id': id,
+      'firstname': firstname.text,
+      'lastname': lastname.text,
+      'patronymic': patronymic.text
+    });
     if (res.statusCode == 200) {
       var prefs = await SharedPreferences.getInstance();
       setState(() {
@@ -68,7 +83,7 @@ class _ContactWidgetState extends State<ContactWidget> {
         this.patronymic = patronymic.text;
       });
     }
-  }  // Редактирование ФИО о пользователе
+  } // Редактирование ФИО о пользователе
 
   _showDialog(BuildContext context) {
     var numberController = TextEditingController(text: phoneNumber);
@@ -134,10 +149,8 @@ class _ContactWidgetState extends State<ContactWidget> {
                                   BorderRadius.all(Radius.circular(50))),
                         ),
                         onPressed: () {
-                          edit_info_user(
-                              numberController.value,
-                              mailController.value,
-                              addressController.value);
+                          edit_info_user(numberController.value,
+                              mailController.value, addressController.value);
                           Navigator.pop(context);
                         },
                       ),
@@ -286,9 +299,39 @@ class _ContactWidgetState extends State<ContactWidget> {
       mail = prefs.getString('mail')!;
       address = prefs.getString('address')!;
     });
+    get_avatar_user();
   }
 
+  Future pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      final imageTemporary = File(image.path);
+      _asyncFileUpload(this.id, imageTemporary);
+    } on PlatformException catch (e) {
+      print('failed to pick image');
+    }
+  }
 
+  _asyncFileUpload(String text, File file) async {
+    //create multipart request for POST or PATCH method
+    var request = http.MultipartRequest(
+        "POST", Uri.parse(url_server + 'api/set_user_avatar'));
+    //add text fields
+    request.fields["user_id"] = text;
+    //create multipart using filepath, string or bytes
+    var pic = await http.MultipartFile.fromPath("file_field", file.path);
+    //add multipart to request
+    request.files.add(pic);
+    var response = await request.send();
+
+    //Get the response from the server
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+    if (jsonDecode(responseString)['status'] == 200) {
+      get_avatar_user();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -315,11 +358,15 @@ class _ContactWidgetState extends State<ContactWidget> {
                   SizedBox(width: 30),
                   Stack(
                     children: [
-                      Image.asset(
-                        'assets/image/photo_lk.png',
-                        width: 80,
-                        height: 80,
-                      ),
+                      avatar != ''
+                                ? ClipOval(
+                                    child: avatar,
+                                  )
+                                : Image.asset(
+                                    'assets/image/no_auth_avatar.png',
+                                    width: 80,
+                                    height: 80,
+                                  ),
                       Positioned(
                         child: Container(
                           width: 30,
@@ -333,8 +380,10 @@ class _ContactWidgetState extends State<ContactWidget> {
                             splashRadius: 20,
                             icon: Icon(Icons.add_a_photo_outlined,
                                 color: Colors.black),
-                            onPressed: () {},
-                          ),
+                            onPressed: () {
+                              pickImage();
+                            },
+                          ), // Добавить фото
                         ),
                         bottom: 0,
                         right: 0,

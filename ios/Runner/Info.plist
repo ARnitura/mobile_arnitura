@@ -53,5 +53,11 @@
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Разрешите чтобы выбирать фотографии из галереи</string>
+	<key>NSCameraUsageDescription</key>
+    <string>Разрешите чтобы выбирать фотографии</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Разрешите чтобы выбирать фотографии</string>
 </dict>
 </plist>

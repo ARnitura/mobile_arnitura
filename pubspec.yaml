@@ -27,6 +27,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  image_network: ^2.5.1
   flutter_unity_widget: ^2022.1.7+1
   loading: ^1.0.2
   permission_handler: ^8.0.0+2
@@ -41,6 +42,7 @@ dependencies:
   file_utils: ^1.0.1
   path_provider: ^2.0.9
   loader_overlay: ^2.0.6
+  image_picker: ^0.8.5+3
   flutter:
     sdk: flutter
 
