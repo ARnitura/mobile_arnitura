@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arnituramobile/bottomNavbar.dart';
 import 'package:arnituramobile/globals.dart';
 import 'package:arnituramobile/order.dart';
+import 'auth.dart';
 import 'main_drawer.dart';
 import 'app_bar_drawer_list.dart';
 
@@ -131,7 +132,6 @@ class _ShopingWidgetState extends State<ShopingWidget> {
     setState(() {});
   } // Меняется состояние корзины в памяти
 
-
   void setTotal() async {
     updateState();
     final prefs = await SharedPreferences.getInstance();
@@ -147,9 +147,10 @@ class _ShopingWidgetState extends State<ShopingWidget> {
     } // Получение состояния корзины из памяти
     for (var i = 0; i < cart.length; i++) {
       if (values[i]) {
-        countSelected += int.parse(cart[i.toString()]['count']);
+        countSelected += int.parse(cart[cart.keys.elementAt(i)]['count']);
         var test = prices[i][prices[i].keys.elementAt(0)].toInt();
-        priceSelected += int.parse(cart[i.toString()]['count']) * test;
+        priceSelected +=
+            int.parse(cart[cart.keys.elementAt(i)]['count']) * test;
       }
     }
     prefs.setString('cart_info', jsonEncode(list_to_buy));
@@ -324,7 +325,8 @@ class _ShopingWidgetState extends State<ShopingWidget> {
                                                         list_to_buy.keys
                                                             .elementAt(index)]
                                                     ['count']),
-                                                index: index, setStateCell: setTotal),
+                                                index: index,
+                                                setStateCell: setTotal),
                                             right: 20,
                                             bottom: 5),
                                       ],
@@ -354,12 +356,28 @@ class _ShopingWidgetState extends State<ShopingWidget> {
                           SizedBox(height: 40),
                           values.contains(true)
                               ? OutlinedButton(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
                                                 OrderWidget()));
+                                    // showDialog(
+                                    //     context: context,
+                                    //     builder: (BuildContext context) {
+                                    //       return AlertDialog(
+                                    //         content: Text(
+                                    //           "Зарегистрируйтесь чтобы оформить заказ",
+                                    //           textAlign: TextAlign.center,
+                                    //           style:
+                                    //           TextStyle(color: Color(0xff4094D0), fontSize: 20),
+                                    //         ),
+                                    //         shape: RoundedRectangleBorder(
+                                    //             side: BorderSide(color: Colors.blue, width: 1.5),
+                                    //             borderRadius:
+                                    //             BorderRadius.all(Radius.circular(15))),
+                                    //       );
+                                    //     });
                                   },
                                   child: Text('Перейти к оформлению',
                                       style: TextStyle(
@@ -408,14 +426,14 @@ class CountWidget extends StatefulWidget {
   int index;
   final VoidCallback setStateCell;
 
-  CountWidget({required this.count, required this.index, required this.setStateCell});
+  CountWidget(
+      {required this.count, required this.index, required this.setStateCell});
 
   @override
   _CountWidgetState createState() => _CountWidgetState();
 }
 
 class _CountWidgetState extends State<CountWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -434,11 +452,13 @@ class _CountWidgetState extends State<CountWidget> {
 
   void saveInfoCount() async {
     var prefs = await SharedPreferences.getInstance();
-    list_to_buy[list_to_buy.keys.elementAt(widget.index)]['count'] =
-        widget.count.toString(); // Изменение количества мебели внутри объекта корзины
+    list_to_buy[list_to_buy.keys.elementAt(widget.index)]['count'] = widget
+        .count
+        .toString(); // Изменение количества мебели внутри объекта корзины
     prefs.setString('cart_info', jsonEncode(list_to_buy));
     widget.setStateCell(); // Сохранание состояния корзины
-    internalSetter(() {}); // вызов обновления 'итого' на экране корзины(всегда происходит в конце)
+    internalSetter(
+        () {}); // вызов обновления 'итого' на экране корзины(всегда происходит в конце)
   }
 
   @override

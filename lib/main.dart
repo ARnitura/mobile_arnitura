@@ -69,7 +69,7 @@ class MyAppState extends State<MyApp> {
     var s1 = Builder(
       builder: (context) => Scaffold(
           backgroundColor: Colors.white,
-          drawer: DrawerKreslo(),
+          drawer: DrawerKreslo(setStatePosts: this.setStatePosts),
           appBar: AppBarDrawerList(''),
           body: FutureBuilder<String>(
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {

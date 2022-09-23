@@ -27,7 +27,6 @@ class Post extends StatefulWidget {
   State<Post> createState() => PostState();
 }
 
-
 class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
   var isLiked = false;
   var _currentIndex = 1;
@@ -45,7 +44,6 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    initStateLike();
     print('post init');
   }
 
@@ -64,11 +62,15 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
       } else if (jsonDecode(res.body)['state'] == 'off') {
         this.isLiked = false;
       }
-    }
+    } // Если пользователь авторизован то определяется состояние лайка
+    else {
+      this.isLiked = false;
+    } // Если пользваотель вышел из акк или не авторизирован то лайк выключен
     var res = await post(Uri.parse(url_server + '/api/get_count_like'),
         body: {'id_post': widget.id});
     this.countLikes = jsonDecode(res.body)['count_likes'].toString();
     _setStateLikeCount(() {});
+    _setStateLike(() {});
   }
 
   Future<String> getObjectManufacturer() async {
@@ -118,6 +120,7 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
               .toString());
     }
     ;
+    initStateLike();
     return response.body;
   }
 
@@ -128,15 +131,12 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
     var res = await post(url, body: {'id_post': widget.id, 'id_user': id});
     if (jsonDecode(res.body)['description'] == 'success') {
       this.isLiked = true;
-      this.countLikes = jsonDecode(res.body)['count_likes'].toString();
-      _setStateLikeCount(() {});
-      _setStateLike(() {});
     } else if (jsonDecode(res.body)['description'] == 'cancelled') {
       this.isLiked = false;
-      this.countLikes = jsonDecode(res.body)['count_likes'].toString();
-      _setStateLikeCount(() {});
-      _setStateLike(() {});
     }
+    this.countLikes = jsonDecode(res.body)['count_likes'].toString();
+    _setStateLikeCount(() {});
+    _setStateLike(() {});
 
     print(res.body.toString());
   } // Поставить лайк
@@ -198,7 +198,8 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                     ) // Название производителя
                   ],
                 ),
-              ), // Плашка для перехода на экран производителя
+              ),
+              // Плашка для перехода на экран производителя
               Container(
                 margin: EdgeInsets.only(top: 15),
                 child: Stack(
@@ -255,7 +256,8 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                     // Счетчик, из за того что нужно обновлять состояние(только счетчика а не всего поста) он не выделен в другой виджет, а сделан адаптивно
                   ],
                 ),
-              ), // Карусель с фотографиями товаров
+              ),
+              // Карусель с фотографиями товаров
               Row(children: [
                 SizedBox(width: 10),
                 IconButton(onPressed: () async {
@@ -319,11 +321,10 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                       if (indexUnityPageLayer == 2) {
                         idPostUnityModel = idPostUnityModel;
                         Future.delayed(const Duration(milliseconds: 0), () {
-                          unityWidgetController
-                              .postMessage(
+                          unityWidgetController.postMessage(
                               '_FlutterMessageHandler', 'StartAR', '');
-                        }).then((value) => ArController.downloadModel())
-                            .then((value) => ArController.downloadTextureToModel());
+                        }).then((value) => ArController.downloadModel()).then(
+                            (value) => ArController.downloadTextureToModel());
                       } // Если переход был совершен на экран ar(Инициализация)
                     }, // Кнопка дополненной реальности
                     icon: Image.asset(
@@ -466,8 +467,8 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w500)),
                                           Text(
-                                              jsonDecode(info_post.body)['0']
-                                              ['material_name_furniture']
+                                              jsonDecode(info_post.body)['0'][
+                                                      'material_name_furniture']
                                                   .toString(),
                                               style: TextStyle(
                                                   color: Color(0xff83868B),

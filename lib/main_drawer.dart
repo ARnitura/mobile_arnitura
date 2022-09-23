@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:arnituramobile/globals.dart';
 import 'package:arnituramobile/privacy_policy.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_network/image_network.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'auth.dart';
 import 'authDialog.dart';
 import 'privacy_policy.dart';
 import 'offert.dart';
@@ -258,6 +260,31 @@ class _DrawerKresloState extends State<DrawerKreslo> {
               ],
             ),
           ),
+          SizedBox(height: 10),
+          Card(
+            elevation: 1,
+            margin: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                stateLKAuth == 1 ? ListTile(
+                  leading: Container(
+                    padding: EdgeInsets.only(left: 10),
+                    child: SvgPicture.asset('assets/image/exit.svg', height: 25),
+                  ),
+                  title: Container(
+                      child: const Text(
+                        "Выход",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      )),
+                  onTap: () {
+                    Auth().exit(widget.setStatePosts);
+                    Navigator.pop(context);
+                  },
+                ) : Container()
+              ],
+            ),
+          )
           // ListTile(
           //   leading: Image.asset(
           //     'assets/image/settings_icon.png',
