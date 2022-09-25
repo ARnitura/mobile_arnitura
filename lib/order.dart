@@ -63,104 +63,218 @@ class _OrderWidgetState extends State<OrderWidget> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Flex(
-          direction: Axis.horizontal,
-          children: [
-            Expanded(
-              child: AlertDialog(
-                content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        return AlertDialog(
+          scrollable: true,
+          content: SingleChildScrollView(
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Телефон'),
+                  SizedBox(height: 5),
+                  TextField(
+                      controller: numberController,
+                      onChanged: (text) {
+                        this.phoneNumber = text;
+                      },
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 8))),
+                  SizedBox(height: 20),
+                  Text('Электронная почта'),
+                  SizedBox(height: 5),
+                  TextField(
+                      controller: mailController,
+                      onChanged: (text) {
+                        this.mail = text;
+                      },
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 8))),
+                  SizedBox(height: 20),
+                  Text('Адрес доставки'),
+                  SizedBox(height: 5),
+                  TextField(
+                      controller: addressController,
+                      onChanged: (text) {
+                        this.address = text;
+                      },
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 8))),
+                  SizedBox(height: 20),
+                  OutlinedButton(
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      child: Text('Сохранить',
+                          style: TextStyle(
+                              color: Color(0xff202020),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w400)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.white, width: 0),
+                      backgroundColor: Color(0xffEDEDED),
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Телефон'),
-                      SizedBox(height: 5),
-                      TextField(
-                          controller: numberController,
-                          onChanged: (text) {
-                            this.phoneNumber = text;
-                          },
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 8))),
-                      SizedBox(height: 20),
-                      Text('Электронная почта'),
-                      SizedBox(height: 5),
-                      TextField(
-                          controller: mailController,
-                          onChanged: (text) {
-                            this.mail = text;
-                          },
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 8))),
-                      SizedBox(height: 20),
-                      Text('Адрес доставки'),
-                      SizedBox(height: 5),
-                      TextField(
-                          controller: addressController,
-                          onChanged: (text) {
-                            this.address = text;
-                          },
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 8))),
-                      SizedBox(height: 20),
-                      OutlinedButton(
-                        child: Container(
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          child: Text('Сохранить',
-                              style: TextStyle(
-                                  color: Color(0xff202020),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w400)),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.white, width: 0),
-                          backgroundColor: Color(0xffEDEDED),
-                          shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(50))),
-                        ),
-                        onPressed: () {
+                      Icon(
+                        Icons.arrow_back_ios,
+                        color: Color(0xff4094D0),
+                        size: 16,
+                      ),
+                      GestureDetector(
+                        child: Text('Назад',
+                            style: TextStyle(
+                                fontSize: 14, color: Color(0xff4094D0))),
+                        onTap: () {
                           Navigator.pop(context);
                         },
                       ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.arrow_back_ios,
-                            color: Color(0xff4094D0),
-                            size: 16,
-                          ),
-                          GestureDetector(
-                            child: Text('Назад',
-                                style: TextStyle(
-                                    fontSize: 14, color: Color(0xff4094D0))),
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
-                      )
-                    ]),
-                shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.blue, width: 1.5),
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-              ),
-            ),
-          ],
+                    ],
+                  )
+                ]),
+          ),
+          shape: RoundedRectangleBorder(
+              side: BorderSide(color: Colors.blue, width: 1.5),
+              borderRadius: BorderRadius.all(Radius.circular(15))),
         );
       },
     );
+  }
+
+  void editName() {
+    var _lastnameController = TextEditingController(text: this.lastname);
+    var _firstnameController = TextEditingController(text: this.firstname);
+    var _patronymicController = TextEditingController(text: this.patronymic);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            scrollable: true,
+            content: SingleChildScrollView(
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Фамилия'),
+                    SizedBox(height: 5),
+                    TextField(
+                        controller: _lastnameController,
+                        onChanged: (text) {
+                          this.lastname = text;
+                        },
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 8))),
+                    SizedBox(height: 20),
+                    Text('Имя'),
+                    SizedBox(height: 5),
+                    TextField(
+                        controller: _firstnameController,
+                        onChanged: (text) {
+                          this.firstname = text;
+                        },
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 8))),
+                    SizedBox(height: 20),
+                    Text('Отчество'),
+                    SizedBox(height: 5),
+                    TextField(
+                        controller: _patronymicController,
+                        onChanged: (text) {
+                          this.patronymic = text;
+                        },
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 8))),
+                    SizedBox(height: 20),
+                    OutlinedButton(
+                      child: Container(
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        child: Text('Сохранить',
+                            style: TextStyle(
+                                color: Color(0xff202020),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400)),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.white, width: 0),
+                        backgroundColor: Color(0xffEDEDED),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(50))),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.arrow_back_ios,
+                          color: Color(0xff4094D0),
+                          size: 16,
+                        ),
+                        GestureDetector(
+                          child: Text('Назад',
+                              style: TextStyle(
+                                  fontSize: 14, color: Color(0xff4094D0))),
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    )
+                  ]),
+            ),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.blue, width: 1.5),
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+          );
+        });
+  }
+
+  void orderBuy() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              "Отлично!\n Ваш заказ оформлен",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xff4094D0), fontSize: 20),
+            ),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.blue, width: 1.5),
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+          );
+        });
   }
 
   @override
@@ -174,128 +288,10 @@ class _OrderWidgetState extends State<OrderWidget> {
             children: [
               ListTile(
                   title: Text(lastname + ' ' + firstname + ' ' + patronymic),
+                  subtitle: Text('Фамилия Имя Отчество'),
                   onTap: () {
-                    var _lastnameController =
-                        TextEditingController(text: this.lastname);
-                    var _firstnameController =
-                        TextEditingController(text: this.firstname);
-                    var _patronymicController =
-                        TextEditingController(text: this.patronymic);
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Flex(
-                          direction: Axis.horizontal,
-                          children: [
-                            Expanded(
-                              child: AlertDialog(
-                                content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Фамилия'),
-                                      SizedBox(height: 5),
-                                      TextField(
-                                          controller: _lastnameController,
-                                          onChanged: (text) {
-                                            this.lastname = text;
-                                          },
-                                          decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              isDense: true,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 8))),
-                                      SizedBox(height: 20),
-                                      Text('Имя'),
-                                      SizedBox(height: 5),
-                                      TextField(
-                                          controller: _firstnameController,
-                                          onChanged: (text) {
-                                            this.firstname = text;
-                                          },
-                                          decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              isDense: true,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 8))),
-                                      SizedBox(height: 20),
-                                      Text('Отчество'),
-                                      SizedBox(height: 5),
-                                      TextField(
-                                          controller: _patronymicController,
-                                          onChanged: (text) {
-                                            this.patronymic = text;
-                                          },
-                                          decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              isDense: true,
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 8))),
-                                      SizedBox(height: 20),
-                                      OutlinedButton(
-                                        child: Container(
-                                          width: double.infinity,
-                                          alignment: Alignment.center,
-                                          child: Text('Сохранить',
-                                              style: TextStyle(
-                                                  color: Color(0xff202020),
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.w400)),
-                                        ),
-                                        style: OutlinedButton.styleFrom(
-                                          side: BorderSide(
-                                              color: Colors.white, width: 0),
-                                          backgroundColor: Color(0xffEDEDED),
-                                          shape: const RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(50))),
-                                        ),
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                      SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.arrow_back_ios,
-                                            color: Color(0xff4094D0),
-                                            size: 16,
-                                          ),
-                                          GestureDetector(
-                                            child: Text('Назад',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Color(0xff4094D0))),
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                        ],
-                                      )
-                                    ]),
-                                shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                        color: Colors.blue, width: 1.5),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(15))),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  subtitle: Text('Фамилия Имя Отчество')),
+                    editName();
+                  }),
               Divider(),
               ListTile(
                 title: Text(mail),
@@ -358,24 +354,19 @@ class _OrderWidgetState extends State<OrderWidget> {
             padding: const EdgeInsets.only(bottom: 100),
             child: _value == true
                 ? OutlinedButton(
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              content: Text(
-                                "Отлично!\n Ваш заказ оформлен",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Color(0xff4094D0), fontSize: 20),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                      color: Colors.blue, width: 1.5),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(15))),
-                            );
+                    onPressed: () async {
+                      var response = await post(
+                          Uri.parse(url_server + '/api/new_order'),
+                          body: {
+                            'firstname': this.firstname,
+                            'lastname': this.lastname,
+                            'patronymic': this.patronymic,
+                            'mail': mail,
+                            'phone': phoneNumber,
+                            'address': address,
+                            'listToBuy': jsonEncode(list_to_buy)
                           });
+                      response.statusCode == 200 ? orderBuy() : null;
                     },
                     child: Text('Оформить заказ',
                         style: TextStyle(
