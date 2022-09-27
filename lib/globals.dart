@@ -9,6 +9,8 @@ var countMaxMap = "0"; // Максимальное количество карт
 var countMapLoading = "0"; // Скачано карт
 var percentMapLoading = "0%"; // Процент скачивания карты
 var countBlind = 0;
+var percentLoadingMemoryModel = 0;
+var stateLoading = 0;
 
 late StateSetter internalSetter;
 var list_to_buy = {}; // TODO: убрать это ненужный словарь
@@ -25,7 +27,7 @@ resetLoadingStats() {
 
 LoadingPageController LoadingController = LoadingPageController();
 final ArWidgetController ArController = ArWidgetController();
-var url_server = 'http://192.168.0.6:5002/';
+var url_server = 'https://arkreslo.ru';
 var indexUnityPageLayer = 0;
 dynamic idTextureUnityModel = 'None';
 var idPost = '';

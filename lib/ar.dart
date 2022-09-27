@@ -35,7 +35,8 @@ class ArWidget extends StatefulWidget {
   });
 
   @override
-  ArWidgetState createState() => ArWidgetState(ArChildController, this.setStatePosts);
+  ArWidgetState createState() =>
+      ArWidgetState(ArChildController, this.setStatePosts);
 }
 
 class ArWidgetState extends State<ArWidget> {
@@ -82,8 +83,10 @@ class ArWidgetState extends State<ArWidget> {
         onUnityMessage: onUnityMessage,
         enablePlaceholder: false,
         fullscreen: false);
-    this.blind =
-        BlindWidget(id_texture: idTextureUnityModel, id_post: idPostUnityModel, controller: BlindController);
+    this.blind = BlindWidget(
+        id_texture: idTextureUnityModel,
+        id_post: idPostUnityModel,
+        controller: BlindController);
     initCartInfo();
     initPosition();
   }
@@ -115,9 +118,10 @@ class ArWidgetState extends State<ArWidget> {
       FileUtils.mkdir([dirloc]); // Если папка отсутсвует, то создается новая
       await dio.download(DownloadUrl, model_path,
           onReceiveProgress: (receivedBytes, totalBytes) {
-            percentModelLoading = "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
-            Loading.setPercentModelLoading(); // Изменение переменной загрузки
-            setState(() {});
+        percentModelLoading =
+            "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
+        Loading.setPercentModelLoading(); // Изменение переменной загрузки
+        setState(() {});
       });
       // });
       // } catch (e) {
@@ -180,6 +184,7 @@ class ArWidgetState extends State<ArWidget> {
       Loading.setCountTextureLoading();
     }
     print('installed');
+    stateLoading = 1;
     addModel(model_path);
   }
 
@@ -253,16 +258,18 @@ class ArWidgetState extends State<ArWidget> {
       widget.setStatePosts();
       setTexture();
       BlindController.setTexture();
+      resetLoadingStats();
+    }
+    else {
+      print(jsonDecode(message)['percentLoading']);
+      percentLoadingMemoryModel = jsonDecode(message)['percentLoading'];
+      Loading.setPercentLoadingMemoryModel();
     }
   }
 
   void addModel(path) {
-    unityWidgetController
-        .postMessage(
-          '_FlutterMessageHandler',
-          'LoadModel',
-          path,
-        )?.then((value) => resetLoadingStats());
+    unityWidgetController.postMessage(
+        '_FlutterMessageHandler', 'LoadModel', path);
     print('Модель загружена');
   }
 
@@ -275,7 +282,9 @@ class ArWidgetState extends State<ArWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var blockSwipe = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.bottom - 30;
+    var blockSwipe = MediaQuery.of(context).size.height -
+        MediaQuery.of(context).padding.bottom -
+        30;
     return LoaderOverlay(
       useDefaultLoading: false,
       overlayWidget: Center(
@@ -304,7 +313,12 @@ class ArWidgetState extends State<ArWidget> {
               child: GestureDetector(
                 onHorizontalDragUpdate: (DragUpdateDetails details) {
                   setState(() {
-                    if (blockSwipe >= details.globalPosition.dy + 50 && details.globalPosition.dy >= details.globalPosition.dy + 50 + (MediaQuery.of(context).size.width / 3) * (countBlind ~/ 3)) {
+                    if (blockSwipe >= details.globalPosition.dy + 50 &&
+                        details.globalPosition.dy >=
+                            details.globalPosition.dy +
+                                50 +
+                                (MediaQuery.of(context).size.width / 3) *
+                                    (countBlind ~/ 3)) {
                       position = Offset(0, details.globalPosition.dy);
                     }
                   });
@@ -319,9 +333,8 @@ class ArWidgetState extends State<ArWidget> {
               child: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: IconButton(
-                    icon: inCart == false
-                        ? Icon(Icons.add)
-                        : Icon(Icons.remove),
+                    icon:
+                        inCart == false ? Icon(Icons.add) : Icon(Icons.remove),
                     onPressed: () {
                       var jsoncart = '{"id": "' +
                           idPostUnityModel.toString() +
@@ -330,14 +343,13 @@ class ArWidgetState extends State<ArWidget> {
                           '" }'; // Генерируется json
                       var objectToCart = jsonDecode(
                           jsoncart); // Объект товара который будет добавлятся в корзину
-                      var object = Map<String, dynamic>.from(
-                          cartInfo); // Объект корзины
+                      var object =
+                          Map<String, dynamic>.from(cartInfo); // Объект корзины
                       for (int i = 0; i < object.keys.length; i++) {
                         if (cartInfo[object.keys.elementAt(i)]['id'] ==
                             objectToCart['id']) {
                           object.remove(object.keys.elementAt(i));
-                          cartInfo =
-                              jsonDecode(JsonEncoder().convert(object));
+                          cartInfo = jsonDecode(JsonEncoder().convert(object));
                           setState(() {
                             inCart = false;
                           });
@@ -380,8 +392,10 @@ class BlindWidget extends StatefulWidget {
   final String id_post;
   final BlindWidgetController controller;
 
-
-  BlindWidget({required this.id_texture, required this.id_post, required this.controller});
+  BlindWidget(
+      {required this.id_texture,
+      required this.id_post,
+      required this.controller});
 
   @override
   BlindWidgetState createState() => BlindWidgetState(controller);

@@ -113,6 +113,7 @@ class _authDialogState extends State<authDialog> {
                     isDense: true,
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 10, horizontal: 8)),
+                obscureText: true,
                 style: TextStyle(fontSize: 12))
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,6 +362,7 @@ class _newPasswordDialogState extends State<newPasswordDialog> {
                         isDense: true,
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 10, horizontal: 8)),
+                    obscureText: true,
                     style: TextStyle(fontSize: 12)),
                 SizedBox(height: 10),
                 Text('Подтвердить пароль'),
@@ -528,6 +530,7 @@ class _regDialogState extends State<regDialog> {
                     isDense: true,
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 10, horizontal: 8)),
+                obscureText: true,
                 style: TextStyle(fontSize: 12)),
             SizedBox(height: 20),
             Text('E-mail', style: TextStyle(color: Color(0xff83868B))),

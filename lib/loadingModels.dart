@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'globals.dart';
 
 class LoadingWidget extends StatefulWidget {
-
   LoadingWidget();
 
   @override
@@ -18,7 +17,7 @@ class LoadingWidgetState extends State<LoadingWidget> {
     _controller.setCountMaxMap = setCountMaxMap;
     _controller.setCountMapLoading = setCountMapLoading;
     _controller.setCountTextureLoading = setCountTextureLoading;
-
+    _controller.setPercentLoadingMemoryModel = setPercentLoadingMemoryModel;
   }
 
   void setPercentModelLoading() {
@@ -61,17 +60,36 @@ class LoadingWidgetState extends State<LoadingWidget> {
     setState(() {});
   }
 
+  void setPercentLoadingMemoryModel() {
+    setState(() {
+      percentLoadingMemoryModel = percentLoadingMemoryModel;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text('Скачивание модели - ' + percentModelLoading),
-        Text('Скачивание текстуры - ' + countTextureLoading + ' / ' + countMaxTexture),
-        Text('Скачивание карты - ' + countMapLoading + ' / ' + countMaxMap),
-        Text('Скачалось: ' + percentMapLoading),
-      ],
-    ));
+    return Center(
+        child: stateLoading == 0
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Скачивание модели - ' + percentModelLoading),
+                  Text('Скачивание текстуры - ' +
+                      countTextureLoading +
+                      ' / ' +
+                      countMaxTexture),
+                  Text('Скачивание карты - ' +
+                      countMapLoading +
+                      ' / ' +
+                      countMaxMap),
+                  Text('Скачалось: ' + percentMapLoading),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Text('Загрузка модели в память - ' + percentLoadingMemoryModel.toString()),
+                ],
+              ));
   }
 }
 
@@ -82,4 +100,5 @@ class LoadingPageController {
   late void Function() setCountMaxMap;
   late void Function() setCountMapLoading;
   late void Function() setCountTextureLoading;
+  late void Function() setPercentLoadingMemoryModel;
 }

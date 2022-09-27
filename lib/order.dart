@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'auth.dart';
-import 'authDialog.dart';
 import 'globals.dart';
 
 import 'package:flutter/material.dart';
