@@ -24,7 +24,7 @@ class arniturabottomNavBarState extends State<arniturabottomNavBar> {
   void initShared() async {
     prefs = await SharedPreferences.getInstance(); // Получаю значение в памяти
     await prefs.remove('navbarCount');
-    final int? counter = prefs.getString('navbarCount'); // Получаю индекс раздела navbar на данный момент
+    dynamic counter = prefs.getString('navbarCount'); // Получаю индекс раздела navbar на данный момент
     if (counter == null) {
       await prefs.setString('navbarCount', widget.currentIndex.toString());
     } // сначала проверяю что значение не равно null

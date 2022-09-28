@@ -74,6 +74,8 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
   }
 
   Future<String> getObjectManufacturer() async {
+    images = [];
+    this.price = "";
     var url = Uri.parse(url_server + '/api/get_manufacturer');
     var response = await post(url, body: {'id': widget.manufacturer_id});
     var response_posts = await post(
@@ -403,7 +405,7 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                                                     fontWeight:
                                                         FontWeight.w500))),
                                         Transform.rotate(
-                                          angle: pi * (animationValue + 0.5),
+                                          angle: pi * (animationValue + 2) / 2,
                                           child: Icon(
                                             Icons.arrow_back_ios,
                                             size: 20,
@@ -441,6 +443,7 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                                             // 'От '
                                             this.price + '₽',
                                             style: TextStyle(
+                                              overflow: TextOverflow.fade,
                                                 color: Color(0xff4094D0),
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500))

@@ -43,8 +43,26 @@ class _OrderWidgetState extends State<OrderWidget> {
     getListOrder();
   }
 
+  void validateField() {
+    if (this.firstname == 'null') {
+      this.firstname = '';
+    }
+    if (this.lastname == 'null') {
+      this.lastname = 'Нажмите чтобы изменить ФИО';
+    }
+    if (this.patronymic == 'null') {
+      this.patronymic = '';
+    }
+    if (this.mail == 'null') {
+      this.mail = 'Нажмите чтобы изменить почту';
+    }
+    if (this.address == 'null') {
+      this.address = 'Нажмите чтобы изменить адрес доставки';
+    }
+  }
+
   void getListOrder() async {
-    var prefs = await SharedPreferences.getInstance();
+    var prefs = await SharedPreferences.getInstance().whenComplete(() => validateField());
     this.listOrders = jsonDecode(prefs.getString('list_orders').toString());
     for (var i = 0; i < this.listOrders.length; i++) {
       var postIndexed = this.listOrders[this.listOrders.keys.elementAt(i)];
@@ -52,13 +70,14 @@ class _OrderWidgetState extends State<OrderWidget> {
           body: {'id_post': postIndexed['id']});
       printedOrders.add(jsonDecode(infoOrder.body));
     }
+    validateField();
     setState(() {});
   }
 
   void editNumberMailAddress() {
     var numberController = TextEditingController(text: phoneNumber);
-    var mailController = TextEditingController(text: mail);
-    var addressController = TextEditingController(text: address);
+    var mailController = TextEditingController(text: mail == 'Нажмите чтобы изменить почту' ? '' : mail);
+    var addressController = TextEditingController(text: address == 'Нажмите чтобы изменить адрес доставки' ? '' : address);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -158,7 +177,7 @@ class _OrderWidgetState extends State<OrderWidget> {
   }
 
   void editName() {
-    var _lastnameController = TextEditingController(text: this.lastname);
+    var _lastnameController = TextEditingController(text: this.lastname == "Нажмите чтобы изменить ФИО" ? '' : this.lastname);
     var _firstnameController = TextEditingController(text: this.firstname);
     var _patronymicController = TextEditingController(text: this.patronymic);
     showDialog(
@@ -273,8 +292,26 @@ class _OrderWidgetState extends State<OrderWidget> {
                 side: BorderSide(color: Colors.blue, width: 1.5),
                 borderRadius: BorderRadius.all(Radius.circular(15))),
           );
+        }).then((value) => Navigator.of(context).pop());
+  }
+
+  void errorMail() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              "Указана неправльная почта",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xff3f454b), fontSize: 20),
+            ),
+            shape: RoundedRectangleBorder(
+                side: BorderSide(color: Color(0xff3f454b), width: 1.5),
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+          );
         });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -354,18 +391,24 @@ class _OrderWidgetState extends State<OrderWidget> {
             child: _value == true
                 ? OutlinedButton(
                     onPressed: () async {
-                      var response = await post(
-                          Uri.parse(url_server + '/api/new_order'),
-                          body: {
-                            'firstname': this.firstname,
-                            'lastname': this.lastname,
-                            'patronymic': this.patronymic,
-                            'mail': mail,
-                            'phone': phoneNumber,
-                            'address': address,
-                            'listToBuy': jsonEncode(list_to_buy)
-                          });
-                      response.statusCode == 200 ? orderBuy() : null;
+                      if (RegExp(
+                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                          .hasMatch(mail)) {
+                        var response = await post(
+                            Uri.parse(url_server + '/api/new_order'),
+                            body: {
+                              'firstname': this.firstname,
+                              'lastname': this.lastname,
+                              'patronymic': this.patronymic,
+                              'mail': mail,
+                              'phone': phoneNumber,
+                              'address': address,
+                              'listToBuy': jsonEncode(list_to_buy)
+                            });
+                        response.statusCode == 200 ? orderBuy() : null;
+                      } else {
+                        errorMail();
+                      }
                     },
                     child: Text('Оформить заказ',
                         style: TextStyle(

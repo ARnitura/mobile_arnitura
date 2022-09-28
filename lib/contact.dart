@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:arnituramobile/globals.dart';
 import 'package:image_network/image_network.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 class ContactWidget extends StatefulWidget {
@@ -35,11 +37,16 @@ class _ContactWidgetState extends State<ContactWidget> {
   }
 
   Future get_avatar_user() async {
+    var imageUrl = url_server + '/api/get_photo_user_avatar?user_id=' + id.toString();
+    var prefs = await SharedPreferences.getInstance();
+    var cacheImageKey = prefs.getString('cacheImageKey');
     avatar = ImageNetwork(
-        image: url_server + '/api/get_photo_user_avatar?user_id=' + id.toString(),
+        image: imageUrl,
         width: 80,
         height: 80,
-      fitAndroidIos: BoxFit.cover);
+        fitAndroidIos: BoxFit.cover,
+        imageCache: CachedNetworkImageProvider(imageUrl, cacheKey: cacheImageKey),
+    );
     setState(() {});
   }
 
@@ -315,8 +322,8 @@ class _ContactWidgetState extends State<ContactWidget> {
 
   _asyncFileUpload(String text, File file) async {
     //create multipart request for POST or PATCH method
-    var request = http.MultipartRequest(
-        "POST", Uri.parse(url_server + 'api/set_user_avatar'));
+    var request = await http.MultipartRequest(
+        "POST", Uri.parse(url_server + '/api/set_user_avatar'));
     //add text fields
     request.fields["user_id"] = text;
     //create multipart using filepath, string or bytes
@@ -329,6 +336,8 @@ class _ContactWidgetState extends State<ContactWidget> {
     var responseData = await response.stream.toBytes();
     var responseString = String.fromCharCodes(responseData);
     if (jsonDecode(responseString)['status'] == 200) {
+      var prefs = await SharedPreferences.getInstance();
+      prefs.setString('cacheImageKey', Random().nextInt(100).toString());
       get_avatar_user();
     }
   }

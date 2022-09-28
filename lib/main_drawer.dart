@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:arnituramobile/globals.dart';
 import 'package:arnituramobile/privacy_policy.dart';
@@ -28,6 +29,7 @@ class _DrawerKresloState extends State<DrawerKreslo> {
   var lastname = '';
   var manufacturer_id = '';
   var id_user = '';
+  var cacheImageKey = '';
 
   @override
   void initState() {
@@ -43,6 +45,7 @@ class _DrawerKresloState extends State<DrawerKreslo> {
       firstname = prefs.getString('firstname')!;
       lastname = prefs.getString('lastname')!;
       id_user = prefs.getString('id')!;
+      cacheImageKey = prefs.getString('cacheImageKey')!;
     } else {
       stateLKAuth = 0;
     }
@@ -71,7 +74,7 @@ class _DrawerKresloState extends State<DrawerKreslo> {
                                 });
                           },
                           child: Text(
-                            'Войдите',
+                            'Войти',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
@@ -91,7 +94,7 @@ class _DrawerKresloState extends State<DrawerKreslo> {
                                 });
                           },
                           child: Text(
-                            'зарегистрируйтесь',
+                            'зарегистрироваться',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
@@ -110,7 +113,10 @@ class _DrawerKresloState extends State<DrawerKreslo> {
                     image: url_server +
                             '/api/get_photo_user_avatar?user_id=' +
                             id_user.toString(),
-                        width: 300, fitAndroidIos: BoxFit.cover, height: 300),
+                        width: 300, fitAndroidIos: BoxFit.cover, height: 300,         imageCache: CachedNetworkImageProvider(url_server +
+                    '/api/get_photo_user_avatar?user_id=' +
+                    id_user.toString(), cacheKey: cacheImageKey),
+                ),
               ),
             ),
             accountEmail: null,

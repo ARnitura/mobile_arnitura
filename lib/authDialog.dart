@@ -263,36 +263,35 @@ class mailDialog extends StatefulWidget {
 }
 
 class _mailDialogState extends State<mailDialog> {
-  late Timer _timer;
-  int _start = 1;
+  // int _start = 1;
 
-  void startTimer() {
-    const oneSec = const Duration(seconds: 1);
-    _timer = new Timer.periodic(
-      oneSec,
-      (Timer timer) {
-        if (_start == 0) {
-          setState(() {
-            timer.cancel();
-            Navigator.pop(context);
-            showDialog(
-              context: context,
-              builder: (alertContext) => newPasswordDialog(),
-            );
-          });
-        } else {
-          setState(() {
-            _start--;
-          });
-        }
-      },
-    );
-  }
+  // void startTimer() {
+  //   const oneSec = const Duration(seconds: 1);
+  //   _timer = new Timer.periodic(
+  //     oneSec,
+  //     (Timer timer) {
+  //       if (_start == 0) {
+  //         setState(() {
+  //           timer.cancel();
+  //           Navigator.pop(context);
+  //           showDialog(
+  //             context: context,
+  //             builder: (alertContext) => newPasswordDialog(),
+  //           );
+  //         });
+  //       } else {
+  //         setState(() {
+  //           _start--;
+  //         });
+  //       }
+  //     },
+  //   );
+  // }
 
   @override
   void initState() {
     super.initState();
-    startTimer();
+    // startTimer();
   }
 
   @override
@@ -421,6 +420,7 @@ class _regDialogState extends State<regDialog> {
   var addressController = TextEditingController();
   var loginErrorText = null;
   var passwordErrorText = null;
+  var emailErrorText = null;
 
   bool validation() {
     var login = loginController.text;
@@ -433,7 +433,7 @@ class _regDialogState extends State<regDialog> {
     }
     if (password.length < 8) {
       setState(() {
-        passwordErrorText = 'Пароль должен содержать больше 8 символов';
+        passwordErrorText = 'Пароль должен быть не менее 8 символов';
       });
       return false;
     }
@@ -456,6 +456,15 @@ class _regDialogState extends State<regDialog> {
       ;
     }
     ;
+
+    if (!RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(this.emailController.text)) {
+      setState(() {
+        emailErrorText = 'Введена неправильная почта';
+      });
+      return false;
+    }
     return true;
   }
 
@@ -505,7 +514,9 @@ class _regDialogState extends State<regDialog> {
             TextField(
                 controller: loginController,
                 onChanged: ((text) {
-                  loginErrorText = null;
+                  setState(() {
+                    loginErrorText = null;
+                  });
                 }),
                 decoration: InputDecoration(
                     errorText: loginErrorText,
@@ -526,6 +537,7 @@ class _regDialogState extends State<regDialog> {
                 }),
                 decoration: InputDecoration(
                     errorText: passwordErrorText,
+                    errorMaxLines: 2,
                     border: OutlineInputBorder(),
                     isDense: true,
                     contentPadding:
@@ -537,7 +549,13 @@ class _regDialogState extends State<regDialog> {
             SizedBox(height: 6),
             TextField(
                 controller: emailController,
+                onChanged: (text) {
+                  setState(() {
+                    emailErrorText = null;
+                  });
+                },
                 decoration: InputDecoration(
+                    errorText: emailErrorText,
                     border: OutlineInputBorder(),
                     isDense: true,
                     contentPadding:
@@ -583,7 +601,8 @@ class _regDialogState extends State<regDialog> {
                   if (jsonDecode(res.body)['description'] == 'success') {
                     var prefs = await SharedPreferences.getInstance();
                     prefs.setInt('stateAuth', 1);
-                    prefs.setString('id', jsonDecode(res.body)['id'].toString());
+                    prefs.setString(
+                        'id', jsonDecode(res.body)['id'].toString());
                     prefs.setString('firstname', firstnameController.text);
                     prefs.setString('lastname', lastnameController.text);
                     prefs.setString('patronymic', patronymicController.text);

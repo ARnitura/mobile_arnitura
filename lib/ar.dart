@@ -442,46 +442,44 @@ class BlindWidgetState extends State<BlindWidget> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 140,
-      child: Expanded(
-        child: ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: countBlind,
-          itemBuilder: (BuildContext buildContext, int index) {
-            return Row(children: [
-              index * 3 < textures.length
-                  ? Expanded(
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Image.network(
-                            '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3)]).toString()}',
-                            fit: BoxFit.fitWidth),
-                      ),
-                    )
-                  : clearBlind,
-              (index * 3) + 1 < textures.length
-                  ? Container(color: Colors.black, width: 1, height: 125)
-                  : SizedBox(width: 1),
-              (index * 3) + 1 < textures.length
-                  ? Expanded(
-                      child: GestureDetector(
+      child: ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: countBlind,
+        itemBuilder: (BuildContext buildContext, int index) {
+          return Row(children: [
+            index * 3 < textures.length
+                ? Expanded(
+                    child: GestureDetector(
                       onTap: () {},
                       child: Image.network(
-                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 1]).toString()}',
+                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3)]).toString()}',
                           fit: BoxFit.fitWidth),
-                    ))
-                  : clearBlind,
-              (index * 3) + 2 < textures.length
-                  ? Container(color: Colors.black, width: 1, height: 125)
-                  : SizedBox(width: 1),
-              (index * 3) + 2 < textures.length
-                  ? Expanded(
-                      child: Image.network(
-                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
-                          fit: BoxFit.fitWidth))
-                  : clearBlind
-            ]);
-          },
-        ),
+                    ),
+                  )
+                : clearBlind,
+            (index * 3) + 1 < textures.length
+                ? Container(color: Colors.black, width: 1, height: 125)
+                : SizedBox(width: 1),
+            (index * 3) + 1 < textures.length
+                ? Expanded(
+                    child: GestureDetector(
+                    onTap: () {},
+                    child: Image.network(
+                        '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 1]).toString()}',
+                        fit: BoxFit.fitWidth),
+                  ))
+                : clearBlind,
+            (index * 3) + 2 < textures.length
+                ? Container(color: Colors.black, width: 1, height: 125)
+                : SizedBox(width: 1),
+            (index * 3) + 2 < textures.length
+                ? Expanded(
+                    child: Image.network(
+                        '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
+                        fit: BoxFit.fitWidth))
+                : clearBlind
+          ]);
+        },
       ),
     );
   }

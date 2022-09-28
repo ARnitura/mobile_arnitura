@@ -94,12 +94,12 @@ class _ManufacturerWidgetState extends State<ManufacturerWidget> {
                         Text(list_orders.toString())
                       ],
                     ),
-                    Column(
-                      children: [
-                        Image.asset('assets/image/bookmark_icon_manufacturers.png', width: 30),
-                        Text(list_favourites.toString())
-                      ],
-                    ),
+                    // Column(
+                    //   children: [
+                    //     Image.asset('assets/image/bookmark_icon_manufacturers.png', width: 30),
+                    //     Text(list_favourites.toString())
+                    //   ],
+                    // ),  # todo: отключено избранное
               ],
             ),
           ),
