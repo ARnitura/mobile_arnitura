@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:arnituramobile/globals.dart';
@@ -29,6 +31,7 @@ class _DrawerKresloState extends State<DrawerKreslo> {
   var lastname = '';
   var manufacturer_id = '';
   var id_user = '';
+  var avatar = '';
   var cacheImageKey = '';
 
   @override
@@ -45,7 +48,17 @@ class _DrawerKresloState extends State<DrawerKreslo> {
       firstname = prefs.getString('firstname')!;
       lastname = prefs.getString('lastname')!;
       id_user = prefs.getString('id')!;
-      cacheImageKey = prefs.getString('cacheImageKey')!;
+      if (prefs.getString('avatar') == null) {
+        avatar = '';
+      }
+      else {
+        avatar = prefs.getString('avatar')!;
+      }
+      if (prefs.getString('cacheImageKey') == null) {
+        cacheImageKey = Random().nextInt(100).toString();
+      } else {
+        cacheImageKey = prefs.getString('cacheImageKey')!;
+      }
     } else {
       stateLKAuth = 0;
     }
@@ -109,14 +122,19 @@ class _DrawerKresloState extends State<DrawerKreslo> {
               child: ClipOval(
                 child: stateLKAuth == 0
                     ? Image.asset('assets/image/no_auth_avatar.png')
-                    : ImageNetwork(
-                    image: url_server +
+                    : avatar != '' ? ImageNetwork(
+                        image: url_server +
                             '/api/get_photo_user_avatar?user_id=' +
                             id_user.toString(),
-                        width: 300, fitAndroidIos: BoxFit.cover, height: 300,         imageCache: CachedNetworkImageProvider(url_server +
-                    '/api/get_photo_user_avatar?user_id=' +
-                    id_user.toString(), cacheKey: cacheImageKey),
-                ),
+                        width: 300,
+                        fitAndroidIos: BoxFit.cover,
+                        height: 300,
+                        imageCache: CachedNetworkImageProvider(
+                            url_server +
+                                '/api/get_photo_user_avatar?user_id=' +
+                                id_user.toString(),
+                            cacheKey: cacheImageKey),
+                       ) : Image.asset('assets/image/no_auth_avatar.png'),
               ),
             ),
             accountEmail: null,
@@ -273,21 +291,24 @@ class _DrawerKresloState extends State<DrawerKreslo> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                stateLKAuth == 1 ? ListTile(
-                  leading: Container(
-                    padding: EdgeInsets.only(left: 10),
-                    child: SvgPicture.asset('assets/image/exit.svg', height: 25),
-                  ),
-                  title: Container(
-                      child: const Text(
-                        "Выход",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      )),
-                  onTap: () {
-                    Auth().exit(widget.setStatePosts);
-                    Navigator.pop(context);
-                  },
-                ) : Container()
+                stateLKAuth == 1
+                    ? ListTile(
+                        leading: Container(
+                          padding: EdgeInsets.only(left: 10),
+                          child: SvgPicture.asset('assets/image/exit.svg',
+                              height: 25),
+                        ),
+                        title: Container(
+                            child: const Text(
+                          "Выход",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        )),
+                        onTap: () {
+                          Auth().exit(widget.setStatePosts);
+                          Navigator.pop(context);
+                        },
+                      )
+                    : Container()
               ],
             ),
           )

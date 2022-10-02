@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:arnituramobile/globals.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'bottomNavbar.dart';
 import 'full_post.dart';
 import 'main_drawer.dart';
@@ -37,13 +38,19 @@ class _ManufacturerWidgetState extends State<ManufacturerWidget> {
 
   void getManufacturerCount() async {
     var url = Uri.parse(url_server + '/api/get_counts_manufacturer');
-    var res = await post(url, body: {'id_manufacturer': widget.manufacturer_id});
+    var res =
+        await post(url, body: {'id_manufacturer': widget.manufacturer_id});
     setState(() {
       likes_count = jsonDecode(res.body)['likes_count'];
       list_favourites = jsonDecode(res.body)['list_favourites'];
       list_products = jsonDecode(res.body)['list_products'];
       list_orders = jsonDecode(res.body)['list_orders'];
     });
+  }
+
+  _launchURL(String toMailId, String subject, String body) async {
+    var url = 'mailto:$toMailId?subject=$subject&body=$body';
+    await launchUrl(Uri.parse(url));
   }
 
   @override
@@ -68,38 +75,39 @@ class _ManufacturerWidgetState extends State<ManufacturerWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Image.network(
-                  url_server + '/api/get_photo_avatar?id=' +
+                  url_server +
+                      '/api/get_photo_avatar?id=' +
                       widget.manufacturer_id.toString() +
                       '&photo_name=image_company',
                   width: 95,
                 ),
-                    Column(
-                      children: [
-                        Image.asset(
-                          'assets/image/kreslo_count.png',
-                          width: 30,
-                        ),
-                        Text(list_products.toString())
-                      ],
+                Column(
+                  children: [
+                    Image.asset(
+                      'assets/image/kreslo_count.png',
+                      width: 30,
                     ),
-                    Column(
-                      children: [
-                        Image.asset('assets/image/like_count.png', width: 30),
-                        Text(likes_count.toString())
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Image.asset('assets/image/shop_count.png', width: 30),
-                        Text(list_orders.toString())
-                      ],
-                    ),
-                    // Column(
-                    //   children: [
-                    //     Image.asset('assets/image/bookmark_icon_manufacturers.png', width: 30),
-                    //     Text(list_favourites.toString())
-                    //   ],
-                    // ),  # todo: отключено избранное
+                    Text(list_products.toString())
+                  ],
+                ),
+                Column(
+                  children: [
+                    Image.asset('assets/image/like_count.png', width: 30),
+                    Text(likes_count.toString())
+                  ],
+                ),
+                Column(
+                  children: [
+                    Image.asset('assets/image/shop_count.png', width: 30),
+                    Text(list_orders.toString())
+                  ],
+                ),
+                // Column(
+                //   children: [
+                //     Image.asset('assets/image/bookmark_icon_manufacturers.png', width: 30),
+                //     Text(list_favourites.toString())
+                //   ],
+                // ),  # todo: отключено избранное
               ],
             ),
           ),
@@ -113,12 +121,30 @@ class _ManufacturerWidgetState extends State<ManufacturerWidget> {
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   SizedBox(height: 5),
                   // Название
-                  Text(data['mail'].toString()),
+                  GestureDetector(
+                      onTap: () {
+                        _launchURL(data['mail'].toString(),
+                            'Сообщение производителю', '');
+                      },
+                      child: Text(data['mail'].toString())),
                   // Почта
-                  Text(data['phone_number'].toString()),
-                  SizedBox(height: 5,),
+                  GestureDetector(
+                      onTap: () {
+                        launchUrl(Uri.parse(
+                            "tel:" + data['phone_number'].toString()));
+                      },
+                      child: Text(data['phone_number'].toString())),
+                  SizedBox(
+                    height: 5,
+                  ),
                   // Номер телефона
-                  Text(data['site'], style: TextStyle(color: Color(0xFF2D9CDB)))
+                  GestureDetector(
+                      onTap: () {
+                        launchUrl(
+                            Uri.parse(data['site'].toString()));
+                      },
+                      child: Text(data['site'],
+                          style: TextStyle(color: Color(0xFF2D9CDB))))
                   // Сайт
                 ],
               )),
@@ -154,13 +180,13 @@ class _ManufacturerWidgetState extends State<ManufacturerWidget> {
                             ),
                           );
                         },
-                        child: Image.network(
-                            url_server + '/api/get_photos?id=' +
-                                widget.manufacturer_id.toString() +
-                                '&photo_name=' +
-                                jsonDecode(snapshot.data.toString())[
-                                        index.toString()]['photo']
-                                    .toString()),
+                        child: Image.network(url_server +
+                            '/api/get_photos?id=' +
+                            widget.manufacturer_id.toString() +
+                            '&photo_name=' +
+                            jsonDecode(snapshot.data.toString())[
+                                    index.toString()]['photo']
+                                .toString()),
                       );
                     },
                     // children: [

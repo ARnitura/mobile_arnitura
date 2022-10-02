@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -36,7 +35,6 @@ class _authDialogState extends State<authDialog> {
       prefs.setString('firstname', object_user['firstname'].toString());
       prefs.setString('lastname', object_user['lastname'].toString());
       prefs.setString('patronymic', object_user['patronymic'].toString());
-      prefs.setString('avatar', object_user['firstname'].toString());
       prefs.setString('phone', object_user['phone'].toString());
       prefs.setString('mail', object_user['mail'].toString());
       prefs.setString('address', object_user['address'].toString());
@@ -606,6 +604,7 @@ class _regDialogState extends State<regDialog> {
                     prefs.setString('firstname', firstnameController.text);
                     prefs.setString('lastname', lastnameController.text);
                     prefs.setString('patronymic', patronymicController.text);
+                    prefs.setString('avatar', '');
                     prefs.setString('phone', phoneController.text);
                     prefs.setString('mail', emailController.text);
                     prefs.setString('address', addressController.text);

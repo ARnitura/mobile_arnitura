@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:arnituramobile/loadingModels.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arnituramobile/globals.dart';
 import 'app_bar_drawer_list.dart';
@@ -45,6 +46,9 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp
+    ]);
     getPostsFromMemory(widget.data);
   }
 

@@ -146,6 +146,7 @@ class ArWidgetState extends State<ArWidget> {
     countMaxTexture = max_textures;
     Loading.setCountMaxTexture(); // Выводим количествово текстур
     for (int i = 0; i < textures.length; i++) {
+      materials.add([]);
       var texture_info =
           await post(Uri.parse('${url_server}/api/maps_info'), body: {
         'id_texture': idTextureUnityModel.split(', ')[i].toString(),
@@ -157,6 +158,8 @@ class ArWidgetState extends State<ArWidget> {
       Loading.setCountMaxMap(); // Выводим количество карт в текстуре
       for (int j = 0; j < maps.length; j++) {
         checkMap(maps[j], manufacturer_id, textures[i]);
+        materials[i].add(
+            ('${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures[i].toString()}/${maps[j]}'));
         var map_path =
             '${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures[i].toString()}/${maps[j]}';
         if (File(map_path).existsSync() != true) {
@@ -259,11 +262,13 @@ class ArWidgetState extends State<ArWidget> {
       setTexture();
       BlindController.setTexture();
       resetLoadingStats();
-    }
-    else {
+    } else {
       print(jsonDecode(message)['percentLoading']);
       percentLoadingMemoryModel = jsonDecode(message)['percentLoading'];
       Loading.setPercentLoadingMemoryModel();
+      if (percentLoadingMemoryModel == 100) {
+        percentLoadingMemoryModel = 0;
+      }
     }
   }
 
@@ -437,6 +442,12 @@ class BlindWidgetState extends State<BlindWidget> {
     });
   }
 
+  Future<void> setTextureInModel(index) async {
+    Future.delayed(Duration(seconds: 0)).then((value) =>
+        unityWidgetController.postMessage('_FlutterMessageHandler',
+            'LoadTexture', materials[index].join(", ")));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -450,7 +461,9 @@ class BlindWidgetState extends State<BlindWidget> {
             index * 3 < textures.length
                 ? Expanded(
                     child: GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        setTextureInModel(index * 3);
+                      },
                       child: Image.network(
                           '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3)]).toString()}',
                           fit: BoxFit.fitWidth),
@@ -463,7 +476,9 @@ class BlindWidgetState extends State<BlindWidget> {
             (index * 3) + 1 < textures.length
                 ? Expanded(
                     child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      setTextureInModel((index * 3) + 1);
+                    },
                     child: Image.network(
                         '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 1]).toString()}',
                         fit: BoxFit.fitWidth),
@@ -474,9 +489,14 @@ class BlindWidgetState extends State<BlindWidget> {
                 : SizedBox(width: 1),
             (index * 3) + 2 < textures.length
                 ? Expanded(
-                    child: Image.network(
-                        '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
-                        fit: BoxFit.fitWidth))
+                    child: GestureDetector(
+                      onTap: () {
+                        setTextureInModel((index * 3) + 2);
+                      },
+                      child: Image.network(
+                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
+                          fit: BoxFit.fitWidth),
+                    ))
                 : clearBlind
           ]);
         },

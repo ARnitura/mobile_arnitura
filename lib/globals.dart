@@ -9,7 +9,7 @@ var countMaxMap = "0"; // Максимальное количество карт
 var countMapLoading = "0"; // Скачано карт
 var percentMapLoading = "0%"; // Процент скачивания карты
 var countBlind = 0;
-var percentLoadingMemoryModel = 0;
+var percentLoadingMemoryModel = 0; // Процент загрузки модели в память
 var stateLoading = 0;
 
 late StateSetter internalSetter;
@@ -22,6 +22,7 @@ resetLoadingStats() {
   countMaxMap = "0";
   countMapLoading = "0";
   percentMapLoading = "0%";
+  percentLoadingMemoryModel = 0;
 }
 
 
@@ -35,6 +36,7 @@ var idPostUnityModel = 'None';
 late UnityWidgetController unityWidgetController;
 String dirloc = "";
 var maps = [];
+var materials = [];
 
 
 class ArWidgetController {

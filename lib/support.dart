@@ -13,7 +13,7 @@ class _SupportState extends State<SupportWidget> {
 
   _launchURL(String toMailId, String subject, String body) async {
     var url = 'mailto:$toMailId?subject=$subject&body=$body';
-    await launch(url);
+    await launchUrl(Uri.parse(url));
   }
 
   @override
@@ -26,8 +26,8 @@ class _SupportState extends State<SupportWidget> {
           children: [
             ListTile(
               onTap: () {
-                launch("tel://+7 922 775-33-90");
-              },
+                launchUrl(Uri.parse(
+                    "tel://+7 922 775-33-90"));},
               title: Text('+7 922 775-33-90'),
               subtitle: Text('Позвонить по телефону'),
             ),
@@ -54,9 +54,9 @@ class _SupportState extends State<SupportWidget> {
                 )),
             ListTile(
               onTap: () {
-                _launchURL('german214@yandex.ru', 'Сообщение в техподдержку arnitura', '');
+                _launchURL('info@arnitura.ru', 'Сообщение в техподдержку arnitura', '');
               },
-                title: Text('pocta@kreslo.com'),
+                title: Text('info@arnitura.ru'),
                 subtitle: Text('Отправить e-mail'))
           ],
         ),

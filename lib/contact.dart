@@ -301,12 +301,19 @@ class _ContactWidgetState extends State<ContactWidget> {
       firstname = prefs.getString('firstname')!;
       lastname = prefs.getString('lastname')!;
       patronymic = prefs.getString('patronymic')!;
-      avatar = prefs.getString('avatar')!;
+      if (prefs.getString('avatar') == null) {
+        avatar = '';
+      }
+      else {
+        avatar = prefs.getString('avatar')!;
+      }
       phoneNumber = prefs.getString('phone')!;
       mail = prefs.getString('mail')!;
       address = prefs.getString('address')!;
     });
-    get_avatar_user();
+    if (avatar != '') {
+      get_avatar_user();
+    }
   }
 
   Future pickImage() async {

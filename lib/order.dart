@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/gestures.dart';
+
 import 'auth.dart';
 import 'globals.dart';
 
@@ -6,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_bar_drawer_list_to_back.dart';
+import 'offert.dart';
 
 class OrderWidget extends StatefulWidget {
   OrderWidget({Key? key}) : super(key: key);
@@ -39,6 +42,7 @@ class _OrderWidgetState extends State<OrderWidget> {
     lastname = prefs.getString('lastname').toString();
     patronymic = prefs.getString('patronymic').toString();
     mail = prefs.getString('mail').toString();
+    phoneNumber = prefs.getString('phone').toString();
     address = prefs.getString('address').toString();
     getListOrder();
   }
@@ -59,10 +63,14 @@ class _OrderWidgetState extends State<OrderWidget> {
     if (this.address == 'null') {
       this.address = 'Нажмите чтобы изменить адрес доставки';
     }
+    if (this.phoneNumber == 'null') {
+      this.phoneNumber = 'Нажмите чтобы изменить номер телефона';
+    }
   }
 
   void getListOrder() async {
-    var prefs = await SharedPreferences.getInstance().whenComplete(() => validateField());
+    var prefs = await SharedPreferences.getInstance()
+        .whenComplete(() => validateField());
     this.listOrders = jsonDecode(prefs.getString('list_orders').toString());
     for (var i = 0; i < this.listOrders.length; i++) {
       var postIndexed = this.listOrders[this.listOrders.keys.elementAt(i)];
@@ -75,9 +83,12 @@ class _OrderWidgetState extends State<OrderWidget> {
   }
 
   void editNumberMailAddress() {
-    var numberController = TextEditingController(text: phoneNumber);
-    var mailController = TextEditingController(text: mail == 'Нажмите чтобы изменить почту' ? '' : mail);
-    var addressController = TextEditingController(text: address == 'Нажмите чтобы изменить адрес доставки' ? '' : address);
+    var numberController = TextEditingController(text: phoneNumber == 'Нажмите чтобы изменить номер телефона' ? '' : phoneNumber);
+    var mailController = TextEditingController(
+        text: mail == 'Нажмите чтобы изменить почту' ? '' : mail);
+    var addressController = TextEditingController(
+        text:
+            address == 'Нажмите чтобы изменить адрес доставки' ? '' : address);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -177,7 +188,9 @@ class _OrderWidgetState extends State<OrderWidget> {
   }
 
   void editName() {
-    var _lastnameController = TextEditingController(text: this.lastname == "Нажмите чтобы изменить ФИО" ? '' : this.lastname);
+    var _lastnameController = TextEditingController(
+        text:
+            this.lastname == "Нажмите чтобы изменить ФИО" ? '' : this.lastname);
     var _firstnameController = TextEditingController(text: this.firstname);
     var _patronymicController = TextEditingController(text: this.patronymic);
     showDialog(
@@ -312,7 +325,6 @@ class _OrderWidgetState extends State<OrderWidget> {
         });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -328,6 +340,14 @@ class _OrderWidgetState extends State<OrderWidget> {
                   onTap: () {
                     editName();
                   }),
+              Divider(),
+              ListTile(
+                title: Text(phoneNumber),
+                subtitle: Text('Номер телефона'),
+                onTap: () {
+                  editNumberMailAddress();
+                },
+              ),
               Divider(),
               ListTile(
                 title: Text(mail),
@@ -378,9 +398,22 @@ class _OrderWidgetState extends State<OrderWidget> {
                       });
                     },
                   ),
-                  Text(
-                    'Ознакомлен с условиями офферты',
-                    style: TextStyle(color: Color(0xff83868B)),
+                  RichText(
+                    text: TextSpan(children: [
+                      TextSpan(
+                          text: 'Ознакомлен с ',
+                          style: TextStyle(color: Color(0xff83868B))),
+                      TextSpan(
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => OffertWidget()));
+                            },
+                          text: 'условиями офферты',
+                          style: TextStyle(color: Color(0xff4094d0)))
+                    ]),
                   )
                 ],
               ),

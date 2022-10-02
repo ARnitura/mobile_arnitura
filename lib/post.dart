@@ -74,7 +74,6 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
   }
 
   Future<String> getObjectManufacturer() async {
-    images = [];
     this.price = "";
     var url = Uri.parse(url_server + '/api/get_manufacturer');
     var response = await post(url, body: {'id': widget.manufacturer_id});
@@ -105,6 +104,7 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
     //     .toString()
     //     .split(', ')
     //     .toString()); // TODO: Починить отображение фото
+    this.images = [];
     for (int i = 0;
         i <
             jsonDecode(response_posts.body)['0']['photo']
@@ -112,7 +112,7 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                 .split(', ')
                 .length;
         i++) {
-      images.add(url_server +
+      this.images.add(url_server +
           '/api/get_photos?id=' +
           widget.manufacturer_id.toString() +
           '&photo_name=' +
