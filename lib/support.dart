@@ -54,9 +54,9 @@ class _SupportState extends State<SupportWidget> {
                 )),
             ListTile(
               onTap: () {
-                _launchURL('info@arnitura.ru', 'Сообщение в техподдержку arnitura', '');
+                _launchURL('support@arnitura.ru', 'Сообщение в техподдержку arnitura', '');
               },
-                title: Text('info@arnitura.ru'),
+                title: Text('support@arnitura.ru'),
                 subtitle: Text('Отправить e-mail'))
           ],
         ),
