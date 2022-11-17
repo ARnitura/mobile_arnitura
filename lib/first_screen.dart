@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:loading/indicator/ball_spin_fade_loader_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:loading/loading.dart';
 import 'dart:async';
 import 'globals.dart';
 import 'main.dart';
@@ -29,7 +27,8 @@ class _FScreenState extends State<FScreen> {
 
   void asyncLoad() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('stateAuth'); // TODO: это что? проверить назначение переменной stateAuth
+    prefs.remove(
+        'stateAuth'); // TODO: это что? проверить назначение переменной stateAuth
     final int? counter = prefs.getInt('stateAuth');
     if (counter == null) {
       prefs.setInt('stateAuth', 0);
@@ -55,8 +54,8 @@ class _FScreenState extends State<FScreen> {
     // Если нет то меняем состояние переменной stateAuth
     // 0 - Не авторизирован; 1 - авторизирован.
     var posts_info = await getPosts();
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => MyApp(data: posts_info)));
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (context) => MyApp(data: posts_info)));
   } // Загрузка данных пользователя на экране загрузки
 
   @override
@@ -71,13 +70,17 @@ class _FScreenState extends State<FScreen> {
             const SizedBox(width: 10, height: 10),
             const Text(
               'v2.0',
-              style: TextStyle(color: Color(0xFFC4C4C4), fontSize: 20.8, fontWeight: FontWeight.w200),
+              style: TextStyle(
+                  color: Color(0xFFC4C4C4),
+                  fontSize: 20.8,
+                  fontWeight: FontWeight.w200),
             ),
-            Expanded(child: Container()), // todo: попробуй удали контейнеры внутри expanded
-            Loading(
-              indicator: BallSpinFadeLoaderIndicator(),
-              size: 50,
-              color: Color(0xFF4094D0),
+            Expanded(child: Container()),
+            // todo: попробуй удали контейнеры внутри expanded
+            Image.asset(
+              "assets/animation/loader.gif",
+              height: 125.0,
+              width: 125.0,
             ),
             Expanded(child: Container())
           ],
