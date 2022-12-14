@@ -52,6 +52,7 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
   }
 
   void initStateLike() async {
+    if (!mounted) return;
     var prefs = await SharedPreferences.getInstance();
     var id_user = await prefs.getString('id');
     if (id_user != null) {
@@ -69,8 +70,10 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
     var res = await post(Uri.parse(url_server + '/api/get_count_like'),
         body: {'id_post': widget.id});
     this.countLikes = jsonDecode(res.body)['count_likes'].toString();
-    _setStateLikeCount(() {});
-    _setStateLike(() {});
+    if (indexUnityPageLayer == 0) {
+      _setStateLikeCount(() {});
+      _setStateLike(() {});
+    }
   }
 
   Future<String> getObjectManufacturer() async {
@@ -443,7 +446,7 @@ class PostState extends State<Post> with AutomaticKeepAliveClientMixin {
                                             // 'От '
                                             this.price + '₽',
                                             style: TextStyle(
-                                              overflow: TextOverflow.fade,
+                                                overflow: TextOverflow.fade,
                                                 color: Color(0xff4094D0),
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500))

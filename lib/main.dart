@@ -11,12 +11,9 @@ import 'bottomNavbar.dart';
 import 'main_drawer.dart';
 import 'post.dart';
 import 'first_screen.dart';
-import 'globals.dart';
 
 Future<void> main() async {
-  return runApp(MaterialApp(
-      home: FScreen(),
-      debugShowCheckedModeBanner: false));
+  return runApp(MaterialApp(home: FScreen(), debugShowCheckedModeBanner: false));
   // await SentryFlutter.init(
   //   (options) {
   //     debugPaintSizeEnabled = false;
@@ -46,9 +43,7 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     getPostsFromMemory(widget.data);
   }
 
@@ -85,9 +80,9 @@ class MyAppState extends State<MyApp> {
                         id: jsonDecode(lasts_posts)[index.toString()]['id']
                             .toString(),
                         manufacturer_id:
-                        jsonDecode(lasts_posts)[index.toString()]
-                        ['manufacturer_id']
-                            .toString(),
+                            jsonDecode(lasts_posts)[index.toString()]
+                                    ['manufacturer_id']
+                                .toString(),
                         setStatePosts: setStatePosts);
                   },
                   itemCount: jsonDecode(lasts_posts).length);
@@ -97,7 +92,9 @@ class MyAppState extends State<MyApp> {
     );
     var s0 = ArWidget(
         id_texture: idTextureUnityModel,
-        id_post: idPostUnityModel, ArChildController: ArController, setStatePosts: this.setStatePosts);
+        id_post: idPostUnityModel,
+        ArChildController: ArController,
+        setStatePosts: this.setStatePosts);
     var loading = LoadingWidget();
     var listWidgets = [s1, s0, loading];
     return MaterialApp(

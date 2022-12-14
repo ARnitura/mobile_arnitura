@@ -54,6 +54,7 @@ class arniturabottomNavBarState extends State<arniturabottomNavBar> {
               }
               setState(() {
                 indexUnityPageLayer = 0;
+                unityWidgetController.pause();
               });
             },
           ),

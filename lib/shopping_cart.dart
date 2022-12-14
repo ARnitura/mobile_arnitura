@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arnituramobile/bottomNavbar.dart';
 import 'package:arnituramobile/globals.dart';
 import 'package:arnituramobile/order.dart';
-import 'auth.dart';
 import 'main_drawer.dart';
 import 'app_bar_drawer_list.dart';
 

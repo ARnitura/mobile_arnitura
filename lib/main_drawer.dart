@@ -9,7 +9,6 @@ import 'package:image_network/image_network.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth.dart';
 import 'authDialog.dart';
-import 'privacy_policy.dart';
 import 'offert.dart';
 import 'support.dart';
 import 'contact.dart';

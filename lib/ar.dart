@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:arnituramobile/loadingModels.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
 import 'package:http/http.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -70,9 +71,8 @@ class ArWidgetState extends State<ArWidget> {
   @override
   Future<void> deactivate() async {
     super.deactivate();
-    unityWidgetController
-        .postMessage('_FlutterMessageHandler', 'ClearAR', '')
-        ?.then((value) => Navigator.pop(context));
+    unityWidgetController.postMessage('_FlutterMessageHandler', 'ClearAR', '');
+    // _unityWidgetController.unload();
   } // При выходе с экрана ар, происходит полный сброс сцены внутри юнити
 
   @override
@@ -256,14 +256,18 @@ class ArWidgetState extends State<ArWidget> {
   }
 
   void onUnityMessage(message) {
+    print(message);
     if (message == 'ar_model_loaded') {
+      _unityWidgetController.resume();
       indexUnityPageLayer = 1;
-      widget.setStatePosts();
+      if (mounted) {
+        widget.setStatePosts();
+      }
       setTexture();
       BlindController.setTexture();
       resetLoadingStats();
+      print('Модель загружена в память');
     } else {
-      print(jsonDecode(message)['percentLoading']);
       percentLoadingMemoryModel = jsonDecode(message)['percentLoading'];
       Loading.setPercentLoadingMemoryModel();
       if (percentLoadingMemoryModel == 100) {
@@ -276,6 +280,12 @@ class ArWidgetState extends State<ArWidget> {
     unityWidgetController.postMessage(
         '_FlutterMessageHandler', 'LoadModel', path);
     print('Модель загружена');
+  }
+
+  void addWall() {
+    unityWidgetController.postMessage(
+        '_FlutterMessageHandler', 'EnterAnchorCreation', '');
+    print('Стена поставлена');
   }
 
   Future<void> setTexture() async {
@@ -334,55 +344,73 @@ class ArWidgetState extends State<ArWidget> {
             ),
             Positioned(
               right: 20,
-              bottom: 70,
-              child: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: IconButton(
-                    icon:
-                        inCart == false ? Icon(Icons.add) : Icon(Icons.remove),
-                    onPressed: () {
-                      var jsoncart = '{"id": "' +
-                          idPostUnityModel.toString() +
-                          '", "count": "1", "Material": "' +
-                          idTextureUnityModel.toString() +
-                          '" }'; // Генерируется json
-                      var objectToCart = jsonDecode(
-                          jsoncart); // Объект товара который будет добавлятся в корзину
-                      var object =
-                          Map<String, dynamic>.from(cartInfo); // Объект корзины
-                      for (int i = 0; i < object.keys.length; i++) {
-                        if (cartInfo[object.keys.elementAt(i)]['id'] ==
-                            objectToCart['id']) {
-                          object.remove(object.keys.elementAt(i));
-                          cartInfo = jsonDecode(JsonEncoder().convert(object));
-                          setState(() {
-                            inCart = false;
-                          });
-                          updateCartInfo();
-                          return;
-                        } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
-                      } // В другом случае товар добавляется в корзину
-                      var index = Map<String, dynamic>.from(cartInfo)
-                                  .keys
-                                  .length ==
-                              0
-                          ? '0'
-                          : (int.parse(Map<String, dynamic>.from(cartInfo)
+              bottom: 50,
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                        icon: SvgPicture.asset('assets/image/add_wall.svg'),
+                        onPressed: () {
+                          addWall();
+                        },
+                        splashRadius: 1,
+                        color: Colors.black,
+                        splashColor: Colors.black),
+                  ),
+                  SizedBox(height: 20),
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                        icon: inCart == false
+                            ? Icon(Icons.add)
+                            : Icon(Icons.remove),
+                        onPressed: () {
+                          var jsoncart = '{"id": "' +
+                              idPostUnityModel.toString() +
+                              '", "count": "1", "Material": "' +
+                              idTextureUnityModel.toString() +
+                              '" }'; // Генерируется json
+                          var objectToCart = jsonDecode(
+                              jsoncart); // Объект товара который будет добавлятся в корзину
+                          var object = Map<String, dynamic>.from(
+                              cartInfo); // Объект корзины
+                          for (int i = 0; i < object.keys.length; i++) {
+                            if (cartInfo[object.keys.elementAt(i)]['id'] ==
+                                objectToCart['id']) {
+                              object.remove(object.keys.elementAt(i));
+                              cartInfo =
+                                  jsonDecode(JsonEncoder().convert(object));
+                              setState(() {
+                                inCart = false;
+                              });
+                              updateCartInfo();
+                              return;
+                            } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
+                          } // В другом случае товар добавляется в корзину
+                          var index = Map<String, dynamic>.from(cartInfo)
                                       .keys
-                                      .last) +
-                                  1)
-                              .toString(); // Получение последнего индекса в словаре
-                      this.cartInfo[index] =
-                          objectToCart; // Добавение товара в корзину
-                      setState(() {
-                        inCart = true;
-                      });
-                      print(this.cartInfo.toString());
-                      updateCartInfo();
-                    },
-                    splashRadius: 1,
-                    color: Colors.black,
-                    splashColor: Colors.black),
+                                      .length ==
+                                  0
+                              ? '0'
+                              : (int.parse(Map<String, dynamic>.from(cartInfo)
+                                          .keys
+                                          .last) +
+                                      1)
+                                  .toString(); // Получение последнего индекса в словаре
+                          this.cartInfo[index] =
+                              objectToCart; // Добавение товара в корзину
+                          setState(() {
+                            inCart = true;
+                          });
+                          print(this.cartInfo.toString());
+                          updateCartInfo();
+                        },
+                        splashRadius: 1,
+                        color: Colors.black,
+                        splashColor: Colors.black),
+                  ),
+                ],
               ),
             ),
           ],
@@ -490,13 +518,13 @@ class BlindWidgetState extends State<BlindWidget> {
             (index * 3) + 2 < textures.length
                 ? Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        setTextureInModel((index * 3) + 2);
-                      },
-                      child: Image.network(
-                          '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
-                          fit: BoxFit.fitWidth),
-                    ))
+                    onTap: () {
+                      setTextureInModel((index * 3) + 2);
+                    },
+                    child: Image.network(
+                        '${url_server}/api/get_photo_texture?post_id=${idPostUnityModel}&texture_id=${(textures[(index * 3) + 2]).toString()}',
+                        fit: BoxFit.fitWidth),
+                  ))
                 : clearBlind
           ]);
         },
