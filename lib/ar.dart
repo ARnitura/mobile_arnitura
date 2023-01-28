@@ -11,8 +11,7 @@ import 'package:loader_overlay/loader_overlay.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
-
-import 'bottomNavbar.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'package:dio/dio.dart';
 import 'dart:async';
@@ -297,123 +296,133 @@ class ArWidgetState extends State<ArWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var blockSwipe = MediaQuery.of(context).size.height -
-        MediaQuery.of(context).padding.bottom -
-        30;
-    return LoaderOverlay(
-      useDefaultLoading: false,
-      overlayWidget: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              "assets/animation/loader.gif",
-              height: 200.0,
-              width: 200.0,
-            ),
-          ],
+    return SlidingUpPanel(
+      backdropEnabled: true,
+      color: Colors.transparent,
+      margin: EdgeInsets.symmetric(horizontal: 60, vertical: 0),
+      padding: EdgeInsets.zero,
+      panel: SingleChildScrollView(
+          child: Column(
+        children: [
+          Container(width: 150, height: 5, color: Colors.white),
+          blind,
+        ],
+      )),
+      body: LoaderOverlay(
+        useDefaultLoading: false,
+        overlayWidget: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/animation/loader.gif",
+                height: 200.0,
+                width: 200.0,
+              ),
+            ],
+          ),
         ),
-      ),
-      child: Scaffold(
-        bottomNavigationBar: arniturabottomNavBar(currentIndex: -1),
-        body: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Container(
-              color: Colors.black,
-              child: UnityScreen,
-            ),
-            Positioned(
-              top: position.dy - 50,
-              child: GestureDetector(
-                onHorizontalDragUpdate: (DragUpdateDetails details) {
-                  setState(() {
-                    if (blockSwipe >= details.globalPosition.dy + 50 &&
-                        details.globalPosition.dy >=
-                            details.globalPosition.dy +
-                                50 +
-                                (MediaQuery.of(context).size.width / 3) *
-                                    (countBlind ~/ 3)) {
-                      position = Offset(0, details.globalPosition.dy);
-                    }
-                  });
-                  // print(details.globalPosition);
-                },
-                child: blind,
+        child: Scaffold(
+          // bottomNavigationBar: arniturabottomNavBar(currentIndex: -1),
+          body: Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Container(
+                color: Colors.black,
+                child: UnityScreen,
               ),
-            ),
-            Positioned(
-              right: 20,
-              bottom: 50,
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                        icon: SvgPicture.asset('assets/image/add_wall.svg'),
-                        onPressed: () {
-                          addWall();
-                        },
-                        splashRadius: 1,
-                        color: Colors.black,
-                        splashColor: Colors.black),
-                  ),
-                  SizedBox(height: 20),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                        icon: inCart == false
-                            ? Icon(Icons.add)
-                            : Icon(Icons.remove),
-                        onPressed: () {
-                          var jsoncart = '{"id": "' +
-                              idPostUnityModel.toString() +
-                              '", "count": "1", "Material": "' +
-                              idTextureUnityModel.toString() +
-                              '" }'; // Генерируется json
-                          var objectToCart = jsonDecode(
-                              jsoncart); // Объект товара который будет добавлятся в корзину
-                          var object = Map<String, dynamic>.from(
-                              cartInfo); // Объект корзины
-                          for (int i = 0; i < object.keys.length; i++) {
-                            if (cartInfo[object.keys.elementAt(i)]['id'] ==
-                                objectToCart['id']) {
-                              object.remove(object.keys.elementAt(i));
-                              cartInfo =
-                                  jsonDecode(JsonEncoder().convert(object));
-                              setState(() {
-                                inCart = false;
-                              });
-                              updateCartInfo();
-                              return;
-                            } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
-                          } // В другом случае товар добавляется в корзину
-                          var index = Map<String, dynamic>.from(cartInfo)
-                                      .keys
-                                      .length ==
-                                  0
-                              ? '0'
-                              : (int.parse(Map<String, dynamic>.from(cartInfo)
-                                          .keys
-                                          .last) +
-                                      1)
-                                  .toString(); // Получение последнего индекса в словаре
-                          this.cartInfo[index] =
-                              objectToCart; // Добавение товара в корзину
-                          setState(() {
-                            inCart = true;
-                          });
-                          print(this.cartInfo.toString());
-                          updateCartInfo();
-                        },
-                        splashRadius: 1,
-                        color: Colors.black,
-                        splashColor: Colors.black),
-                  ),
-                ],
+              Positioned(
+                  top: 0,
+                  left: 0,
+                  child: TextButton(
+                    onPressed: () {
+                      indexUnityPageLayer = 0;
+                      widget.setStatePosts();// Переход между экранами
+                      // if (indexUnityPageLayer == 2) {
+                      //   idPostUnityModel = idPostUnityModel;
+                      //   Future.delayed(const Duration(milliseconds: 0), () {
+                      //     unityWidgetController.postMessage(
+                      //         '_FlutterMessageHandler', 'StartAR', '');
+                      //   })
+                      //       .then((value) => ArController.downloadModel())
+                      //       .then((value) => ArController.downloadTextureToModel());
+                      // }
+                    }, // Если переход был совершен на экран ar(Инициализация)},
+                    child: Image.asset('assets/image/back_ar.png', width: 30, height: 30,),
+                  )),
+              Positioned(
+                right: 20,
+                bottom: 50,
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                          icon: SvgPicture.asset('assets/image/add_wall.svg'),
+                          onPressed: () {
+                            addWall();
+                          },
+                          splashRadius: 1,
+                          color: Colors.black,
+                          splashColor: Colors.black),
+                    ),
+                    SizedBox(height: 20),
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                          icon: inCart == false
+                              ? Icon(Icons.add)
+                              : Icon(Icons.remove),
+                          onPressed: () {
+                            var jsoncart = '{"id": "' +
+                                idPostUnityModel.toString() +
+                                '", "count": "1", "Material": "' +
+                                idTextureUnityModel.toString() +
+                                '" }'; // Генерируется json
+                            var objectToCart = jsonDecode(
+                                jsoncart); // Объект товара который будет добавлятся в корзину
+                            var object = Map<String, dynamic>.from(
+                                cartInfo); // Объект корзины
+                            for (int i = 0; i < object.keys.length; i++) {
+                              if (cartInfo[object.keys.elementAt(i)]['id'] ==
+                                  objectToCart['id']) {
+                                object.remove(object.keys.elementAt(i));
+                                cartInfo =
+                                    jsonDecode(JsonEncoder().convert(object));
+                                setState(() {
+                                  inCart = false;
+                                });
+                                updateCartInfo();
+                                return;
+                              } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
+                            } // В другом случае товар добавляется в корзину
+                            var index = Map<String, dynamic>.from(cartInfo)
+                                        .keys
+                                        .length ==
+                                    0
+                                ? '0'
+                                : (int.parse(Map<String, dynamic>.from(cartInfo)
+                                            .keys
+                                            .last) +
+                                        1)
+                                    .toString(); // Получение последнего индекса в словаре
+                            this.cartInfo[index] =
+                                objectToCart; // Добавение товара в корзину
+                            setState(() {
+                              inCart = true;
+                            });
+                            print(this.cartInfo.toString());
+                            updateCartInfo();
+                          },
+                          splashRadius: 1,
+                          color: Colors.black,
+                          splashColor: Colors.black),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

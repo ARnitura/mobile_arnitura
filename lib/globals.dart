@@ -28,7 +28,7 @@ resetLoadingStats() {
 
 LoadingPageController LoadingController = LoadingPageController();
 final ArWidgetController ArController = ArWidgetController();
-var url_server = 'https://arkreslo.ru';
+var url_server = 'https://api.arnitura.ru';
 var indexUnityPageLayer = 0;
 dynamic idTextureUnityModel = 'None';
 var idPost = '';

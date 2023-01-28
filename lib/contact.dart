@@ -328,18 +328,13 @@ class _ContactWidgetState extends State<ContactWidget> {
   }
 
   _asyncFileUpload(String text, File file) async {
-    //create multipart request for POST or PATCH method
     var request = await http.MultipartRequest(
         "POST", Uri.parse(url_server + '/api/set_user_avatar'));
-    //add text fields
     request.fields["user_id"] = text;
-    //create multipart using filepath, string or bytes
     var pic = await http.MultipartFile.fromPath("file_field", file.path);
-    //add multipart to request
     request.files.add(pic);
     var response = await request.send();
 
-    //Get the response from the server
     var responseData = await response.stream.toBytes();
     var responseString = String.fromCharCodes(responseData);
     if (jsonDecode(responseString)['status'] == 200) {
