@@ -38,7 +38,6 @@ class arniturabottomNavBarState extends State<arniturabottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
       child: BottomAppBar(
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
             mainAxisSize: MainAxisSize.max,

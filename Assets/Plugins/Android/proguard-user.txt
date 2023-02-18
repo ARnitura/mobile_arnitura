@@ -1,3 +1,0 @@
--keep class com.unity3d.plugin.UnityAndroidPermissions** { *; }
--ignorewarnings
-

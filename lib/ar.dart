@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:arnituramobile/loadingModels.dart';
+import 'package:arnituramobile/shopping_cart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_unity_widget/flutter_unity_widget.dart';
@@ -35,8 +36,7 @@ class ArWidget extends StatefulWidget {
   });
 
   @override
-  ArWidgetState createState() =>
-      ArWidgetState(ArChildController, this.setStatePosts);
+  ArWidgetState createState() => ArWidgetState(ArChildController, this.setStatePosts);
 }
 
 class ArWidgetState extends State<ArWidget> {
@@ -77,23 +77,15 @@ class ArWidgetState extends State<ArWidget> {
   @override
   void initState() {
     super.initState();
-    this.UnityScreen = UnityWidget(
-        onUnityCreated: onUnityCreated,
-        onUnityMessage: onUnityMessage,
-        enablePlaceholder: false,
-        fullscreen: false);
-    this.blind = BlindWidget(
-        id_texture: idTextureUnityModel,
-        id_post: idPostUnityModel,
-        controller: BlindController);
+    this.UnityScreen = UnityWidget(onUnityCreated: onUnityCreated, onUnityMessage: onUnityMessage, enablePlaceholder: false, fullscreen: false);
+    this.blind = BlindWidget(id_texture: idTextureUnityModel, id_post: idPostUnityModel, controller: BlindController);
     initCartInfo();
     initPosition();
   }
 
   Future<String> getPath() async {
     if (Platform.isAndroid) {
-      Directory appDocumentsDirectory =
-          await getApplicationDocumentsDirectory();
+      Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
       return appDocumentsDirectory.path;
     } else {
       final directory = await getApplicationDocumentsDirectory();
@@ -102,23 +94,18 @@ class ArWidgetState extends State<ArWidget> {
   } // Путь до папки документов на устройстве пользователя
 
   Future<void> downloadModel() async {
-    var res = await post(Uri.parse('${url_server}/api/get_info_post'),
-        body: {'id_post': idPostUnityModel}); // Получаем информацию о посте
+    var res = await post(Uri.parse('${url_server}/api/get_info_post'), body: {'id_post': idPostUnityModel}); // Получаем информацию о посте
     var manufacturer_id = jsonDecode(res.body)['0']['manufacturer_id'];
     var model_id = jsonDecode(res.body)['0']['model_id'];
-    var model_path =
-        '${dirloc}/files/${manufacturer_id.toString()}/models/${model_id.toString()}.fbx';
+    var model_path = '${dirloc}/files/${manufacturer_id.toString()}/models/${model_id.toString()}.fbx';
     print('--------------------' + dirloc);
     if (File(model_path).existsSync() != true) {
       // Если модели нет, то она скачивается
       // try {
-      final DownloadUrl =
-          "${url_server}/api/download_model?manufacturer_id=${manufacturer_id.toString()}&model_id=${model_id.toString()}";
+      final DownloadUrl = "${url_server}/api/download_model?manufacturer_id=${manufacturer_id.toString()}&model_id=${model_id.toString()}";
       FileUtils.mkdir([dirloc]); // Если папка отсутсвует, то создается новая
-      await dio.download(DownloadUrl, model_path,
-          onReceiveProgress: (receivedBytes, totalBytes) {
-        percentModelLoading =
-            "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
+      await dio.download(DownloadUrl, model_path, onReceiveProgress: (receivedBytes, totalBytes) {
+        percentModelLoading = "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
         Loading.setPercentModelLoading(); // Изменение переменной загрузки
         setState(() {});
       });
@@ -138,16 +125,14 @@ class ArWidgetState extends State<ArWidget> {
   Future<void> downloadTextureToModel() async {
     maps = [];
     var textures = idTextureUnityModel.split(', ');
-    var res = await post(Uri.parse('${url_server}/api/get_info_post'),
-        body: {'id_post': idPostUnityModel}); // Получаем информацию о посте
+    var res = await post(Uri.parse('${url_server}/api/get_info_post'), body: {'id_post': idPostUnityModel}); // Получаем информацию о посте
     var manufacturer_id = jsonDecode(res.body)['0']['manufacturer_id'];
     this.max_textures = textures.length.toString(); // Количество текстур
     countMaxTexture = max_textures;
     Loading.setCountMaxTexture(); // Выводим количествово текстур
     for (int i = 0; i < textures.length; i++) {
       materials.add([]);
-      var texture_info =
-          await post(Uri.parse('${url_server}/api/maps_info'), body: {
+      var texture_info = await post(Uri.parse('${url_server}/api/maps_info'), body: {
         'id_texture': idTextureUnityModel.split(', ')[i].toString(),
         'id_manufacturer': manufacturer_id.toString()
       }); // Получаем список карт для модели
@@ -157,20 +142,16 @@ class ArWidgetState extends State<ArWidget> {
       Loading.setCountMaxMap(); // Выводим количество карт в текстуре
       for (int j = 0; j < maps.length; j++) {
         checkMap(maps[j], manufacturer_id, textures[i]);
-        materials[i].add(
-            ('${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures[i].toString()}/${maps[j]}'));
-        var map_path =
-            '${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures[i].toString()}/${maps[j]}';
+        materials[i].add(('${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures[i].toString()}/${maps[j]}'));
+        var map_path = '${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures[i].toString()}/${maps[j]}';
         if (File(map_path).existsSync() != true) {
           // Если файла нет, то он скачивается
           try {
             final DownloadUrl =
                 "${url_server}/api/download_texture?manufacturer_id=${manufacturer_id.toString()}&texture_id=${textures[i].toString()}&selected_texture=${maps[j].toString()}";
             FileUtils.mkdir([dirloc]); // Создание папки
-            await dio.download(DownloadUrl, map_path.toString(),
-                onReceiveProgress: (receivedBytes, totalBytes) {
-              var progress_download_map =
-                  "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
+            await dio.download(DownloadUrl, map_path.toString(), onReceiveProgress: (receivedBytes, totalBytes) {
+              var progress_download_map = "${((receivedBytes / totalBytes) * 100).toStringAsFixed(0)}%";
               print(progress_download_map);
               percentMapLoading = progress_download_map;
               Loading.setPercentMapLoading();
@@ -191,27 +172,20 @@ class ArWidgetState extends State<ArWidget> {
   }
 
   void checkMap(String map_name, manufacturer_id, textures_selected) async {
-    maps.add(
-        '${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures_selected.toString()}/${map_name}');
+    maps.add('${dirloc}/files/${manufacturer_id.toString()}/models/textures/${textures_selected.toString()}/${map_name}');
   } // Только в состоянии
 
   void initPosition() async {
-    var screenHeight =
-        (window.physicalSize.longestSide / window.devicePixelRatio);
+    var screenHeight = (window.physicalSize.longestSide / window.devicePixelRatio);
     position = Offset(0, screenHeight - 80 - screenHeight * 0.1);
   } // Только в состоянии
 
   void initAddButton() async {
-    var jsoncart = '{"id": "' +
-        idPostUnityModel.toString() +
-        '", "count": "1", "Material": "' +
-        idTextureUnityModel.toString() +
-        '" }'; // Генерируется json
-    var jsoncartv2 =
-        '{"id": "${idPostUnityModel.toString()}", "count": "1", "Material": "${idTextureUnityModel.toString()}" }'; // Генерируется json
+    var jsoncart =
+        '{"id": "' + idPostUnityModel.toString() + '", "count": "1", "Material": "' + idTextureUnityModel.toString() + '" }'; // Генерируется json
+    var jsoncartv2 = '{"id": "${idPostUnityModel.toString()}", "count": "1", "Material": "${idTextureUnityModel.toString()}" }'; // Генерируется json
     // todo: проверить роботоспособность варианта 2, если работает оставить его
-    var objectToCart = jsonDecode(
-        jsoncart); // Объект товара который будет добавлятся в корзину
+    var objectToCart = jsonDecode(jsoncart); // Объект товара который будет добавлятся в корзину
     var object = Map<String, dynamic>.from(this.cartInfo); // Объект корзины
     for (int i = 0; i < object.keys.length; i++) {
       if (cartInfo[object.keys.elementAt(i)]['id'] == objectToCart['id']) {
@@ -230,8 +204,7 @@ class ArWidgetState extends State<ArWidget> {
     dirloc = await getPath();
     var prefs = await SharedPreferences.getInstance();
     if (prefs.getString('cart_info').toString() != 'null') {
-      cartInfo =
-          jsonDecode(prefs.getString('cart_info')!); // Объект корзины в памяти
+      cartInfo = jsonDecode(prefs.getString('cart_info')!); // Объект корзины в памяти
       print(cartInfo.toString());
     } else {
       prefs.setString('cart_info', '{}');
@@ -267,29 +240,35 @@ class ArWidgetState extends State<ArWidget> {
       resetLoadingStats();
       print('Модель загружена в память');
     } else {
-      percentLoadingMemoryModel = jsonDecode(message)['percentLoading'];
-      Loading.setPercentLoadingMemoryModel();
-      if (percentLoadingMemoryModel == 100) {
-        percentLoadingMemoryModel = 0;
+      try {
+        percentLoadingMemoryModel = jsonDecode(message)['percentLoading'];
+        Loading.setPercentLoadingMemoryModel();
+        if (percentLoadingMemoryModel == 100) {
+          percentLoadingMemoryModel = 0;
+        }
+      } catch (e) {
+        print(e);
       }
     }
   }
 
   void addModel(path) {
-    unityWidgetController.postMessage(
-        '_FlutterMessageHandler', 'LoadModel', path);
+    unityWidgetController.postMessage('_FlutterMessageHandler', 'LoadModel', path);
     print('Модель загружена');
   }
 
-  void addWall() {
-    unityWidgetController.postMessage(
-        '_FlutterMessageHandler', 'EnterAnchorCreation', '');
+  void setEditWall() {
+    unityWidgetController.postMessage('_FlutterMessageHandler', 'EnterAnchorCreation', ''); // Войти в режим создания стен
     print('Стена поставлена');
   }
 
+  void setRuler() {
+    unityWidgetController.postMessage('_FlutterMessageHandler', 'Toggle', '');
+    print('Линейка включена');
+  } // Включить линейку
+
   Future<void> setTexture() async {
-    Future.delayed(Duration(seconds: 0)).then((value) => unityWidgetController
-        .postMessage('_FlutterMessageHandler', 'LoadTexture', maps.join(", ")));
+    Future.delayed(Duration(seconds: 0)).then((value) => unityWidgetController.postMessage('_FlutterMessageHandler', 'LoadTexture', maps.join(", ")));
   }
 
   // EXAMPLE: LoadTexture("baseColorPath, normalMapPath, heightMapPath, MetallicGlossMap, OcclusionMapPath, EmissionMapPath, GlossinessMapPath")
@@ -337,7 +316,7 @@ class ArWidgetState extends State<ArWidget> {
                   child: TextButton(
                     onPressed: () {
                       indexUnityPageLayer = 0;
-                      widget.setStatePosts();// Переход между экранами
+                      widget.setStatePosts(); // Переход между экранами
                       // if (indexUnityPageLayer == 2) {
                       //   idPostUnityModel = idPostUnityModel;
                       //   Future.delayed(const Duration(milliseconds: 0), () {
@@ -348,79 +327,105 @@ class ArWidgetState extends State<ArWidget> {
                       //       .then((value) => ArController.downloadTextureToModel());
                       // }
                     }, // Если переход был совершен на экран ar(Инициализация)},
-                    child: Image.asset('assets/image/back_ar.png', width: 30, height: 30,),
-                  )),
+                    child: Image.asset(
+                      'assets/image/back_ar.png',
+                      width: 30,
+                      height: 30,
+                    ),
+                  )), // Вернутся на экран постов
               Positioned(
-                right: 20,
-                bottom: 50,
+                right: 25,
+                bottom: 80,
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: IconButton(
-                          icon: SvgPicture.asset('assets/image/add_wall.svg'),
-                          onPressed: () {
-                            addWall();
-                          },
-                          splashRadius: 1,
-                          color: Colors.black,
-                          splashColor: Colors.black),
-                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        color: Colors.white,
+                        child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: SvgPicture.asset('assets/image/ruler.svg', width: 30),
+                            onPressed: () {
+                              setRuler();
+                            },
+                            splashRadius: 1,
+                            color: Colors.black,
+                            splashColor: Colors.black),
+                      ),
+                    ), // Кнопка создания стены
                     SizedBox(height: 20),
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: IconButton(
-                          icon: inCart == false
-                              ? Icon(Icons.add)
-                              : Icon(Icons.remove),
-                          onPressed: () {
-                            var jsoncart = '{"id": "' +
-                                idPostUnityModel.toString() +
-                                '", "count": "1", "Material": "' +
-                                idTextureUnityModel.toString() +
-                                '" }'; // Генерируется json
-                            var objectToCart = jsonDecode(
-                                jsoncart); // Объект товара который будет добавлятся в корзину
-                            var object = Map<String, dynamic>.from(
-                                cartInfo); // Объект корзины
-                            for (int i = 0; i < object.keys.length; i++) {
-                              if (cartInfo[object.keys.elementAt(i)]['id'] ==
-                                  objectToCart['id']) {
-                                object.remove(object.keys.elementAt(i));
-                                cartInfo =
-                                    jsonDecode(JsonEncoder().convert(object));
-                                setState(() {
-                                  inCart = false;
-                                });
-                                updateCartInfo();
-                                return;
-                              } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
-                            } // В другом случае товар добавляется в корзину
-                            var index = Map<String, dynamic>.from(cartInfo)
-                                        .keys
-                                        .length ==
-                                    0
-                                ? '0'
-                                : (int.parse(Map<String, dynamic>.from(cartInfo)
-                                            .keys
-                                            .last) +
-                                        1)
-                                    .toString(); // Получение последнего индекса в словаре
-                            this.cartInfo[index] =
-                                objectToCart; // Добавение товара в корзину
-                            setState(() {
-                              inCart = true;
-                            });
-                            print(this.cartInfo.toString());
-                            updateCartInfo();
-                          },
-                          splashRadius: 1,
-                          color: Colors.black,
-                          splashColor: Colors.black),
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        color: Colors.white,
+                        child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: SvgPicture.asset('assets/image/add_wall.svg', width: 30),
+                            onPressed: () {
+                              setEditWall();
+                            },
+                            splashRadius: 1,
+                            color: Colors.black,
+                            splashColor: Colors.black),
+                      ),
+                    ), // Кнопка создания стены
+                    SizedBox(height: 20),
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                      child: Container(
+                        width: 40,
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            IconButton(
+                                icon: inCart == false ? SvgPicture.asset('assets/image/add_buy.svg', width: 40, height: 40) : SvgPicture.asset
+                                  ('assets/image/del_buy.svg'),
+                                onPressed: () {
+                                  var jsoncart = '{"id": "${idPostUnityModel.toString()}", "count": "1", "Material": "${idTextureUnityModel.toString()}" }'; // Генерируется json
+                                  var objectToCart = jsonDecode(jsoncart); // Объект товара который будет добавлятся в корзину
+                                  var object = Map<String, dynamic>.from(cartInfo); // Объект корзины
+                                  for (int i = 0; i < object.keys.length; i++) {
+                                    if (cartInfo[object.keys.elementAt(i)]['id'] == objectToCart['id']) {
+                                      object.remove(object.keys.elementAt(i));
+                                      cartInfo = jsonDecode(JsonEncoder().convert(object));
+                                      setState(() {
+                                        inCart = false;
+                                      });
+                                      updateCartInfo();
+                                      return;
+                                    } // если товар уже добавлен при повторном обращении он убирается и корзина сохраняется
+                                  } // В другом случае товар добавляется в корзину
+                                  var index = Map<String, dynamic>.from(cartInfo).keys.length == 0
+                                      ? '0'
+                                      : (int.parse(Map<String, dynamic>.from(cartInfo).keys.last) + 1).toString(); // Получение последнего индекса в словаре
+                                  this.cartInfo[index] = objectToCart; // Добавение товара в корзину
+                                  setState(() {
+                                    inCart = true;
+                                  });
+                                  print(this.cartInfo.toString());
+                                  updateCartInfo();
+                                },
+                                splashRadius: 1,
+                                color: Colors.black,
+                                splashColor: Colors.black), // Кнопка для добавления/удаления товара
+                            IconButton(
+                                icon: SvgPicture.asset('assets/image/cart_ar.svg', width: 40, height: 40),
+                                onPressed: () {
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ShopingWidget()));                                },
+                                splashRadius: 1,
+                                color: Colors.black,
+                                splashColor: Colors.black), // Кнопка для добавления/удаления товара
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
+              ), // Кнопки управления
             ],
           ),
         ),
@@ -434,10 +439,7 @@ class BlindWidget extends StatefulWidget {
   final String id_post;
   final BlindWidgetController controller;
 
-  BlindWidget(
-      {required this.id_texture,
-      required this.id_post,
-      required this.controller});
+  BlindWidget({required this.id_texture, required this.id_post, required this.controller});
 
   @override
   BlindWidgetState createState() => BlindWidgetState(controller);
@@ -480,9 +482,8 @@ class BlindWidgetState extends State<BlindWidget> {
   }
 
   Future<void> setTextureInModel(index) async {
-    Future.delayed(Duration(seconds: 0)).then((value) =>
-        unityWidgetController.postMessage('_FlutterMessageHandler',
-            'LoadTexture', materials[index].join(", ")));
+    Future.delayed(Duration(seconds: 0))
+        .then((value) => unityWidgetController.postMessage('_FlutterMessageHandler', 'LoadTexture', materials[index].join(", ")));
   }
 
   @override
@@ -507,9 +508,7 @@ class BlindWidgetState extends State<BlindWidget> {
                     ),
                   )
                 : clearBlind,
-            (index * 3) + 1 < textures.length
-                ? Container(color: Colors.black, width: 1, height: 125)
-                : SizedBox(width: 1),
+            (index * 3) + 1 < textures.length ? Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1),
             (index * 3) + 1 < textures.length
                 ? Expanded(
                     child: GestureDetector(
@@ -521,9 +520,7 @@ class BlindWidgetState extends State<BlindWidget> {
                         fit: BoxFit.fitWidth),
                   ))
                 : clearBlind,
-            (index * 3) + 2 < textures.length
-                ? Container(color: Colors.black, width: 1, height: 125)
-                : SizedBox(width: 1),
+            (index * 3) + 2 < textures.length ? Container(color: Colors.black, width: 1, height: 125) : SizedBox(width: 1),
             (index * 3) + 2 < textures.length
                 ? Expanded(
                     child: GestureDetector(

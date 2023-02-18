@@ -99,9 +99,13 @@ class MyAppState extends State<MyApp> {
     var listWidgets = [s1, s0, loading];
     return MaterialApp(
       home: Scaffold(
-        body: IndexedStack(
-          index: indexUnityPageLayer,
-          children: listWidgets,
+        backgroundColor: indexUnityPageLayer == 1 ? Colors.black : Colors.white,
+        body: SafeArea(
+          bottom: false,
+          child: IndexedStack(
+            index: indexUnityPageLayer,
+            children: listWidgets,
+          ),
         ),
       ),
     );
