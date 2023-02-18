@@ -25,6 +25,7 @@ migrate_working_dir/
 **/android/key.properties
 *.jks
 
+
 **/ios/Flutter/.last_build_id
 **/ios/Flutter/ephemeral
 **/ios/Flutter/app.flx
